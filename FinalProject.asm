@@ -1,76 +1,82 @@
 INCLUDE Irvine32.inc
 
-.386
-.model flat,stdcall
-.stack 4096
-ExitProcess PROTO dwExitCode:DWORD
+mGoTo MACRO indexX:REQ, indexY:REQ		;移動游標			
+	PUSH edx
+	MOV dl, indexX
+	MOV dh, indexY
+	call Gotoxy
+	POP edx
+ENDM
+
+mWrite MACRO drawText:REQ			;劃出圖像
+	LOCAL string
+	.data
+		string BYTE drawText, 0
+	.code
+		PUSH edx
+		MOV edx, OFFSET string
+		call WriteString
+		POP edx
+ENDM
 
 .data		;this is the data area
 
-map BYTE 100 DUP('0')					;宣告地圖大小
-count DWORD 10								;雙重迴圈中每個迴圈的大小 地圖
-position DWORD 5							;紀錄當前位置
+InitialPos_X EQU 30
+InitialPos_Y EQU 0
+CurrentPos_X BYTE InitialPOS_X 
+CurrentPos_Y BYTE InitialPOS_Y
+Role EQU 'P'
+
+Left_Wall EQU '|'		;牆壁-左邊界
+Right_Wall EQU '|'		;牆壁-右邊界
+
+Min_X EQU 0				
+Max_X EQU 60			;地圖寬
+Min_Y EQU 0	
+Max_Y EQU 100			;地圖高
+
+
+
 
 .code	;this is the code area
 
 
 main proc
 	
-
-	mov esi,position
-	mov map[esi],'1'
-	
-	
-	mov ecx,count
-	L1:
-		call Print_Map									
-		
-		mov esi,position
-		mov al,map[esi]
-		add esi,count
-		xchg map[esi],al
-		sub esi,count
-		mov map[esi],al
-		
-		mov eax,position
-		add eax,count
-		mov position,eax
-
-		
-		call Clrscr
-		loop L1
-
+	call ShowRole
 	
 
 	Invoke ExitProcess,0	
 main endp
 
-;-----------------------------------------   印出地圖  ------------------------------------------
+ShowRole PROC	USES eax
 
-Print_Map proc USES  esi ecx
-
-	mov ecx,count		
-	mov esi,OFFSET map
-
-	mov map[32],'1'
-	
-	L1:
-		push ecx
+	mov al,CurrentPos_Y
+	Drop:
 		
-		mov ecx,count								;inner loop count
+		cmp al,Max_Y		;eax < Max_Y?
+		jnl EndDrop				;跳出迴圈
 
-		Print_Map_inner_loop:
-			mov eax,[esi]							;將map當前的數值移動到eax
-			call WriteChar							;印出字元
-			
-			inc esi										;每次往後移動伊格位置
-			loop Print_Map_inner_loop
+		mGoTo CurrentPos_X,al
+		mWrite Role
+		push eax
+		mov eax,500
 
-		call crlf
-		pop ecx
-		loop L1
+		call Delay
+		pop eax
+		mGoTo CurrentPos_X,al
+		mWrite ' '
+		inc eax
+		jmp Drop
+		
 
-		ret
-Print_Map endp
+	EndDrop:
+		mov CurrentPos_Y,al
+		
+	ret
+ShowRole ENDP
+
 	
+
+
 end main
