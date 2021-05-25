@@ -47,7 +47,7 @@ Max_X EQU 90			;地圖寬
 Min_Y EQU 0	
 Max_Y EQU 30			;地圖高
 
-
+flag BYTE 0
 
 
 .code	;this is the code area
@@ -73,27 +73,27 @@ ShowRole  PROC
 		 .ENDIF
 		
 		call key
-
+		
 		mGoTo CurrentPos_X1,CurrentPos_Y1
 		mWrite Player1
 
 		mGoTo CurrentPos_X2,CurrentPos_Y2
 		mWrite Player2
-
-		Invoke Sleep,500
 		
-
+		INVOKE Sleep,100
+		inc flag
+		
+		.IF flag == 5
 		;擦除上一個位置
-
 		mGoTo CurrentPos_X1,CurrentPos_Y1
 		mWrite ' '	
-		
 		mGoTo CurrentPos_X2,CurrentPos_Y2
 		mWrite ' '	
-		
 		inc CurrentPos_Y1
 		inc CurrentPos_Y2
-		
+		mov al,0
+		mov flag,al
+		.ENDIF
 		jmp Drop
 		
 	EndDrop:	
@@ -134,22 +134,24 @@ key proc
 	mov bl, CurrentPos_X2
 	inc bl
 	.IF ah && CurrentPos_X1 > 31 && CurrentPos_X1 != bl
-		invoke Sleep, 15
+		;invoke Sleep, 15
 		mGoto CurrentPos_X1,CurrentPos_Y1    
-		mov  al,' '     
-		call WriteChar
+		mWrite ' '
 		dec CurrentPos_X1
+		mGoto CurrentPos_X1, CurrentPos_Y1
+		mWrite Player1
 	.ENDIF
 
 	INVOKE GetKeyState, 'D'    ;角色1右鍵
 	mov bl, CurrentPos_X2
 	dec bl
 	.IF ah && CurrentPos_X1 < 89 && CurrentPos_X1 != bl
-		invoke Sleep, 15
+		;invoke Sleep, 15
 		mGoto CurrentPos_X1,CurrentPos_Y1    
-		mov  al,' '     
-		call WriteChar
+		mWrite ' '
 		inc CurrentPos_X1
+		mGoto CurrentPos_X1, CurrentPos_Y1
+		mWrite Player1
 	.ENDIF
 
   INVOKE GetKeyState, VK_LEFT	;角色2左鍵
@@ -158,9 +160,10 @@ key proc
 	.IF ah && CurrentPos_X2 > 31 && CurrentPos_X2 != bl
 		invoke Sleep, 15
 		mGoto CurrentPos_X2, CurrentPos_Y2       
-		mov  al,' '     
-		call WriteChar
+		mWrite ' '
 		dec CurrentPos_X2
+		mGoto CurrentPos_X2, CurrentPos_Y2
+		mWrite Player2
 	.ENDIF
 
   INVOKE GetKeyState, VK_RIGHT	;角色2右鍵
@@ -169,9 +172,10 @@ key proc
 	.IF ah && CurrentPos_X2 < 89 && CurrentPos_X2 != bl
 		invoke Sleep, 15
 		mGoto CurrentPos_X2, CurrentPos_Y2      
-		mov  al,' '     
-		call WriteChar
+		mWrite ' '
 		inc CurrentPos_X2
+		mGoto CurrentPos_X2, CurrentPos_Y2
+		mWrite Player2
 	.ENDIF 
 	
 	ret
