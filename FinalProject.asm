@@ -28,6 +28,14 @@ VK_RIGHT EQU 000000027h  ;右方向鍵
 
 .data		;this is the data area
 
+DropSpeed EQU 300							;掉落速度
+DropStartTime DWORD ?						;掉落起始時間
+DropTimer DWORD ?								;Drop Timer
+
+KeySpeed EQU 20								;鍵盤輸入速度
+KeyStartTime DWORD ?							;鍵盤輸入起始時間
+KeyTimer DWORD ?									;Key Timer
+
 InitialPos_X1 EQU 50								;角色1起始位置X
 InitialPos_Y1 EQU 0								;角色1起始位置Y
 CurrentPos_X1 BYTE InitialPos_X1			;角色1當前位置X
@@ -47,7 +55,7 @@ Max_X EQU 90			;地圖寬
 Min_Y EQU 0	
 Max_Y EQU 30			;地圖高
 
-flag BYTE 0
+flag DWORD 0
 
 
 .code	;this is the code area
@@ -66,24 +74,58 @@ main endp
 ;----------------------------------------
 ShowRole  PROC	
 	
+	INVOKE GetTickCount       
+    mov DropstartTime,eax       
+	mov KeyStartTime,eax
+	
+   
+
 	Drop:
-				
+
+		;計算掉落的timer
+		INVOKE GetTickCount        ; get new tick count
+		sub    eax,DropstartTime        ; get elapsed milliseconds
+		mov DropTimer,eax		
+		;計算鍵盤輸入的timer
+		INVOKE GetTickCount        ; get new tick count
+		sub eax,KeyStartTime
+		mov KeyTimer,eax
+
+
 		.IF CurrentPos_Y1 > Max_Y && CurrentPos_Y2 >Max_Y
 			jnl EndDrop				;跳出迴圈
 		 .ENDIF
 		
-		call key
 		
+
+		.IF KeyTimer>KeySpeed
+			call key
+			INVOKE GetTickCount        ; get starting tick count
+			mov KeyStartTime,eax
+		 .ENDIF
+
 		mGoTo CurrentPos_X1,CurrentPos_Y1
 		mWrite Player1
 
 		mGoTo CurrentPos_X2,CurrentPos_Y2
 		mWrite Player2
 		
-		INVOKE Sleep,100
-		inc flag
+
+		.IF DropTimer>DropSpeed
+			call ShowDrop
+			INVOKE GetTickCount        ; get starting tick count
+			mov    DropStartTime,eax        ; save it
+		.ENDIF
 		
-		.IF flag == 5
+		jmp Drop
+		
+
+	EndDrop:	
+		
+	ret
+ShowRole ENDP
+	
+ShowDrop PROC USES eax
 		;擦除上一個位置
 		mGoTo CurrentPos_X1,CurrentPos_Y1
 		mWrite ' '	
@@ -91,15 +133,11 @@ ShowRole  PROC
 		mWrite ' '	
 		inc CurrentPos_Y1
 		inc CurrentPos_Y2
-		mov al,0
-		mov flag,al
-		.ENDIF
-		jmp Drop
-		
-	EndDrop:	
-		
-	ret
-ShowRole ENDP
+		mov eax,0
+		mov flag,eax
+
+		ret
+	ShowDrop EndP
 
 ;----------------------------------------
 ;					畫出牆壁						
@@ -129,8 +167,9 @@ ShowWall ENDP
 ;----------------------------------------
 key proc
 	mov ah,0
-
+	
 	INVOKE GetKeyState, 'A'   ;角色1左鍵
+	mov bh,CurrentPos_Y2
 	mov bl, CurrentPos_X2
 	inc bl
 	.IF ah && CurrentPos_X1 > 31 && CurrentPos_X1 != bl
@@ -177,6 +216,7 @@ key proc
 		mGoto CurrentPos_X2, CurrentPos_Y2
 		mWrite Player2
 	.ENDIF 
+	
 	
 	ret
 key endp
