@@ -2,6 +2,8 @@ INCLUDE Irvine32.inc
 INCLUDE Macros.inc
 INCLUDELIB user32.lib
 
+GetKeyState PROTO, nVirtkey:DWORD ;判斷按鍵狀況
+
 mGoTo MACRO indexX:REQ, indexY:REQ		;移動游標			
 	PUSH edx
 	MOV dl, indexX
@@ -20,6 +22,9 @@ mWrite MACRO drawText:REQ			;劃出圖像
 		call WriteString
 		POP edx
 ENDM
+
+VK_LEFT EQU 000000025h   ;左方向鍵
+VK_RIGHT EQU 000000027h  ;右方向鍵
 
 .data		;this is the data area
 
@@ -42,7 +47,7 @@ Max_X EQU 90			;地圖寬
 Min_Y EQU 0	
 Max_Y EQU 30			;地圖高
 
-
+flag BYTE 0
 
 
 .code	;this is the code area
@@ -52,8 +57,7 @@ main proc
 
 	call ShowWall
 	call ShowRole
-	
-
+		
 	Invoke ExitProcess,0	
 main endp
 
@@ -62,43 +66,37 @@ main endp
 ;----------------------------------------
 ShowRole  PROC	
 	
-	
-
 	Drop:
-
-		
-		
+				
 		.IF CurrentPos_Y1 > Max_Y && CurrentPos_Y2 >Max_Y
 			jnl EndDrop				;跳出迴圈
 		 .ENDIF
-
+		
+		call key
+		
 		mGoTo CurrentPos_X1,CurrentPos_Y1
 		mWrite Player1
 
 		mGoTo CurrentPos_X2,CurrentPos_Y2
 		mWrite Player2
-
-		Invoke Sleep,500
 		
-
+		INVOKE Sleep,100
+		inc flag
+		
+		.IF flag == 5
 		;擦除上一個位置
-
 		mGoTo CurrentPos_X1,CurrentPos_Y1
 		mWrite ' '	
-		
 		mGoTo CurrentPos_X2,CurrentPos_Y2
 		mWrite ' '	
-		
 		inc CurrentPos_Y1
 		inc CurrentPos_Y2
-		
-		
-
+		mov al,0
+		mov flag,al
+		.ENDIF
 		jmp Drop
 		
-	EndDrop:
-		
-		
+	EndDrop:	
 		
 	ret
 ShowRole ENDP
@@ -126,5 +124,61 @@ ShowWall PROC	USES eax
 	ret
 ShowWall ENDP
 
+;----------------------------------------
+;					輸入
+;----------------------------------------
+key proc
+	mov ah,0
+
+	INVOKE GetKeyState, 'A'   ;角色1左鍵
+	mov bl, CurrentPos_X2
+	inc bl
+	.IF ah && CurrentPos_X1 > 31 && CurrentPos_X1 != bl
+		;invoke Sleep, 15
+		mGoto CurrentPos_X1,CurrentPos_Y1    
+		mWrite ' '
+		dec CurrentPos_X1
+		mGoto CurrentPos_X1, CurrentPos_Y1
+		mWrite Player1
+	.ENDIF
+
+	INVOKE GetKeyState, 'D'    ;角色1右鍵
+	mov bl, CurrentPos_X2
+	dec bl
+	.IF ah && CurrentPos_X1 < 89 && CurrentPos_X1 != bl
+		;invoke Sleep, 15
+		mGoto CurrentPos_X1,CurrentPos_Y1    
+		mWrite ' '
+		inc CurrentPos_X1
+		mGoto CurrentPos_X1, CurrentPos_Y1
+		mWrite Player1
+	.ENDIF
+
+  INVOKE GetKeyState, VK_LEFT	;角色2左鍵
+	mov bl, CurrentPos_X1
+	inc bl
+	.IF ah && CurrentPos_X2 > 31 && CurrentPos_X2 != bl
+		invoke Sleep, 15
+		mGoto CurrentPos_X2, CurrentPos_Y2       
+		mWrite ' '
+		dec CurrentPos_X2
+		mGoto CurrentPos_X2, CurrentPos_Y2
+		mWrite Player2
+	.ENDIF
+
+  INVOKE GetKeyState, VK_RIGHT	;角色2右鍵
+	mov bl, CurrentPos_X1
+	dec bl
+	.IF ah && CurrentPos_X2 < 89 && CurrentPos_X2 != bl
+		invoke Sleep, 15
+		mGoto CurrentPos_X2, CurrentPos_Y2      
+		mWrite ' '
+		inc CurrentPos_X2
+		mGoto CurrentPos_X2, CurrentPos_Y2
+		mWrite Player2
+	.ENDIF 
+	
+	ret
+key endp
 
 end main
