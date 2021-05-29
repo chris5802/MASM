@@ -41,17 +41,19 @@ InitialPos_Y1 EQU 0							;角色1起始位置Y
 CurrentPos_X1 BYTE InitialPos_X1			;角色1當前位置X
 CurrentPos_Y1 BYTE InitialPos_Y1			;角色1當前位置Y
 Player1 EQU 'A'
+Score1 DWORD 0								;角色1分數
 
 InitialPos_X2 EQU 60						;角色2起始位置X
 InitialPos_Y2 EQU 0							;角色2起始位置Y
 CurrentPos_X2 BYTE InitialPos_X2			;角色2當前位置X
 CurrentPos_Y2 BYTE InitialPos_Y2			;角色2當前位置Y
 Player2 EQU 'B'
+Score2 DWORD 0								;角色2分數
 
 Wall EQU '|'				;牆壁
 
 Min_X EQU 30			
-Max_X EQU 90			;地圖寬
+Max_X EQU 91			;地圖寬
 Min_Y EQU 0	
 Max_Y EQU 30			;地圖高
 
@@ -81,7 +83,8 @@ ShowRole  PROC
    
 
 	Drop:
-
+		
+		call ShowScore
 		;計算掉落的timer
 		INVOKE GetTickCount        ; get new tick count
 		sub    eax,DropstartTime        ; get elapsed milliseconds
@@ -121,10 +124,15 @@ ShowRole  PROC
 		
 
 	EndDrop:	
-		
+	
+	call ShowEnd
+	Invoke sleep,5000
+
 	ret
 ShowRole ENDP
-	
+;----------------------------------------
+;					掉落function						
+;----------------------------------------
 ShowDrop PROC USES eax
 		;擦除上一個位置
 		mGoTo CurrentPos_X1,CurrentPos_Y1
@@ -138,7 +146,18 @@ ShowDrop PROC USES eax
 
 		ret
 	ShowDrop EndP
-
+;----------------------------------------
+;					畫出記分板						
+;----------------------------------------
+ShowScore PROC USES eax
+		mGoTo 20,1
+		mov eax,score1
+		call WriteDec
+		mGoTo 111,1
+		mov eax,score2
+		call WriteDec
+		ret
+	ShowScore EndP
 ;----------------------------------------
 ;					畫出牆壁						
 ;----------------------------------------
@@ -158,9 +177,33 @@ ShowWall PROC	USES eax
 		jmp WallLoop
 	
 	EndWall:
+
+	mGoTo 1,1
+	mWrite 'player1 score:'
+	mGoTo 93,1
+	mWrite 'player2 score:'
+
 		
 	ret
 ShowWall ENDP
+;----------------------------------------
+;					結束畫面						
+;----------------------------------------
+ShowEnd PROC	USES eax
+	
+	call Clrscr
+	mov eax,score2
+	mGoTo 55,15
+	.IF score1>eax
+		mWrite 'player1 WIN'
+	.ELSEIF	score1<eax
+		mWrite 'player1 WIN'
+	.ELSEIF
+		mWrite 'TIE'
+	.ENDIF
+		
+	ret
+ShowEnd ENDP
 
 ;----------------------------------------
 ;					輸入
@@ -198,8 +241,8 @@ key proc
 	mov bh, CurrentPos_Y2
 	mov bl, CurrentPos_X2
 	dec bl
-	.IF ah && CurrentPos_X1 < 89 
-		.IF CurrentPos_X1 == bl && CurrentPos_Y1 == bh && CurrentPos_X1<88
+	.IF ah && CurrentPos_X1 < 90 
+		.IF CurrentPos_X1 == bl && CurrentPos_Y1 == bh && CurrentPos_X1<89
 			mGoto CurrentPos_X1,CurrentPos_Y1    
 			mWrite ' '
 			inc CurrentPos_X1
@@ -248,8 +291,8 @@ key proc
   INVOKE GetKeyState, VK_RIGHT	;角色2右鍵
 	mov bl, CurrentPos_X1
 	dec bl
-	.IF ah && CurrentPos_X2 < 89 
-		.IF CurrentPos_X2 == bl && CurrentPos_Y2 == bh && CurrentPos_X2<88
+	.IF ah && CurrentPos_X2 < 90 
+		.IF CurrentPos_X2 == bl && CurrentPos_Y2 == bh && CurrentPos_X2<89
 			mGoto CurrentPos_X2, CurrentPos_Y2      
 			mWrite ' '
 			inc CurrentPos_X2
