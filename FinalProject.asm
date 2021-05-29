@@ -28,13 +28,25 @@ VK_RIGHT EQU 000000027h  ;右方向鍵
 
 .data		;this is the data area
 
-DropSpeed EQU 300							;掉落速度
+arr byte 0,0,0,0,0,0,0,0,0,0				;地圖陣列
+top DWORD 0
+bottom DWORD 9
+FloorCount byte 2
+CurrentFloor byte 2
+
+DropSpeed EQU 100							;掉落速度
 DropStartTime DWORD ?						;掉落起始時間
 DropTimer DWORD ?							;Drop Timer
 
 KeySpeed EQU 20								;鍵盤輸入速度
 KeyStartTime DWORD ?						;鍵盤輸入起始時間
 KeyTimer DWORD ?							;Key Timer
+
+FloorSpeed EQU 1000							;上升速度
+FloorStartTime DWORD ?						;上升起始時間
+FloorTimer DWORD ?							;Floor Timer
+
+
 
 InitialPos_X1 EQU 50						;角色1起始位置X
 InitialPos_Y1 EQU 0							;角色1起始位置Y
@@ -51,6 +63,8 @@ Player2 EQU 'B'
 Score2 DWORD 0								;角色2分數
 
 Wall EQU '|'				;牆壁
+Floor EQU 'TTTTTTTTTT'
+Empty EQU '          '		
 
 Min_X EQU 30			
 Max_X EQU 91			;地圖寬
@@ -64,8 +78,20 @@ flag DWORD 0
 
 
 main proc
+	
+	mov esi,0
+	mov ecx,10
+	call Randomize
+	FloorInitial:
+		mov eax , 5
+        call RandomRange
+        mov arr[esi] , al
+		inc esi
+		
+	loop FloorInitial
 
 	call ShowWall
+
 	call ShowRole
 		
 	Invoke ExitProcess,0	
@@ -79,8 +105,8 @@ ShowRole  PROC
 	INVOKE GetTickCount       
     mov DropstartTime,eax       
 	mov KeyStartTime,eax
-	
-   
+	mov FloorStartTime,eax
+
 
 	Drop:
 		
@@ -93,32 +119,38 @@ ShowRole  PROC
 		INVOKE GetTickCount        ; get new tick count
 		sub eax,KeyStartTime
 		mov KeyTimer,eax
+		;計算地板輸入的timer
+		INVOKE GetTickCount        ; get new tick count
+		sub eax,FloorStartTime
+		mov FloorTimer,eax
 
 
 		.IF CurrentPos_Y1 > Max_Y && CurrentPos_Y2 >Max_Y
 			jnl EndDrop				;跳出迴圈
 		 .ENDIF
-		
-		
-
+		.IF DropTimer>DropSpeed
+			;call ShowDrop
+			INVOKE GetTickCount        ; get starting tick count
+			mov    DropStartTime,eax        ; save it
+		.ENDIF
 		.IF KeyTimer>KeySpeed
 			call key
 			INVOKE GetTickCount        ; get starting tick count
 			mov KeyStartTime,eax
-		 .ENDIF
+		.ENDIF
+		.IF FloorTimer>FloorSpeed
+			call ShowFloor
+			INVOKE GetTickCount        ; get starting tick count
+			mov FloorStartTime,eax
+		.ENDIF
 
 		mGoTo CurrentPos_X1,CurrentPos_Y1
 		mWrite Player1
-
 		mGoTo CurrentPos_X2,CurrentPos_Y2
 		mWrite Player2
 		
 
-		.IF DropTimer>DropSpeed
-			call ShowDrop
-			INVOKE GetTickCount        ; get starting tick count
-			mov    DropStartTime,eax        ; save it
-		.ENDIF
+		
 		
 		jmp Drop
 		
@@ -131,7 +163,103 @@ ShowRole  PROC
 	ret
 ShowRole ENDP
 ;----------------------------------------
-;					掉落function						
+;					Floor						
+;----------------------------------------
+ShowFloor PROC USES eax
+	
+	mov esi,Top
+	mov eax,0
+	mov al,FloorCount
+	mov CurrentFloor,al
+	EmptyLoop:							;擦去上一次樓梯的迴圈
+		mov al,arr[esi]
+		mov bl,10
+		mul bl
+		add al,31
+		mGoto al,CurrentFloor
+		mWrite Empty
+		add CurrentFloor,3
+		inc esi
+		
+	.IF esi>9
+		mov esi,0
+	.ENDIF
+	
+	.IF esi!=Bottom
+		JMP EmptyLoop
+	.ENDIF
+
+	;bottom會沒擦到要多擦一次
+	mov al,arr[esi]
+	mov bl,10
+	mul bl
+	add al,31
+	mGoto al,CurrentFloor
+	mWrite Empty
+
+	
+
+	.IF FloorCount==0					;最上層的地板要超過天花板，陣列需要更新
+		mov FloorCount,2					
+		mov eax , 5 
+        call RandomRange
+		mov esi,top
+        mov arr[esi] , al
+		inc Top
+		inc Bottom
+		.IF Top>9
+			mov Top,0
+		.ENDIF
+		.IF Bottom>9
+			mov Bottom,0
+		.ENDIF
+	.ELSEIF
+		dec FloorCount
+	.ENDIF
+	
+	
+	
+	
+	mov esi,top
+	mov eax,0
+	mov al,FloorCount
+	mov CurrentFloor,al
+
+	
+	
+	FloorLoop:							;畫樓梯的迴圈
+		mov al,arr[esi]
+		mov bl,10
+		mul bl
+		add al,31
+		mGoto al,CurrentFloor
+		mWrite Floor
+		add CurrentFloor,3
+		inc esi
+	
+
+
+	.IF esi>9
+		mov esi,0
+	.ENDIF
+	
+	.IF esi!=Bottom
+		JMP FloorLoop
+	.ENDIF
+
+	;bottom會沒畫到要多畫一次
+	mov al,arr[esi]
+	mov bl,10
+	mul bl
+	add al,31
+	mGoto al,CurrentFloor
+	mWrite Floor
+	
+
+		ret
+	ShowFloor EndP
+;----------------------------------------
+;					Drop						
 ;----------------------------------------
 ShowDrop PROC USES eax
 		;擦除上一個位置
@@ -177,6 +305,23 @@ ShowWall PROC	USES eax
 		jmp WallLoop
 	
 	EndWall:
+
+	mov esi,0
+	mov al,FloorCount
+	mov CurrentFloor,al
+	FloorLoop:
+		mov al,arr[esi]
+		mov bl,10
+		mul bl
+		add al,31
+		mGoto al,CurrentFloor
+		mWrite Floor
+		add CurrentFloor,3
+		inc esi
+	.IF esi<10
+		JMP FloorLoop
+	.ENDIF
+	
 
 	mGoTo 1,1
 	mWrite 'player1 score:'
