@@ -30,20 +30,20 @@ VK_RIGHT EQU 000000027h  ;右方向鍵
 
 DropSpeed EQU 300							;掉落速度
 DropStartTime DWORD ?						;掉落起始時間
-DropTimer DWORD ?								;Drop Timer
+DropTimer DWORD ?							;Drop Timer
 
 KeySpeed EQU 20								;鍵盤輸入速度
-KeyStartTime DWORD ?							;鍵盤輸入起始時間
-KeyTimer DWORD ?									;Key Timer
+KeyStartTime DWORD ?						;鍵盤輸入起始時間
+KeyTimer DWORD ?							;Key Timer
 
-InitialPos_X1 EQU 50								;角色1起始位置X
-InitialPos_Y1 EQU 0								;角色1起始位置Y
+InitialPos_X1 EQU 50						;角色1起始位置X
+InitialPos_Y1 EQU 0							;角色1起始位置Y
 CurrentPos_X1 BYTE InitialPos_X1			;角色1當前位置X
 CurrentPos_Y1 BYTE InitialPos_Y1			;角色1當前位置Y
 Player1 EQU 'A'
 
-InitialPos_X2 EQU 60								;角色2起始位置X
-InitialPos_Y2 EQU 0								;角色2起始位置Y
+InitialPos_X2 EQU 60						;角色2起始位置X
+InitialPos_Y2 EQU 0							;角色2起始位置Y
 CurrentPos_X2 BYTE InitialPos_X2			;角色2當前位置X
 CurrentPos_Y2 BYTE InitialPos_Y2			;角色2當前位置Y
 Player2 EQU 'B'
@@ -169,52 +169,104 @@ key proc
 	mov ah,0
 	
 	INVOKE GetKeyState, 'A'   ;角色1左鍵
-	mov bh,CurrentPos_Y2
+	mov bh, CurrentPos_Y2
 	mov bl, CurrentPos_X2
 	inc bl
-	.IF ah && CurrentPos_X1 > 31 && CurrentPos_X1 != bl
-		;invoke Sleep, 15
-		mGoto CurrentPos_X1,CurrentPos_Y1    
-		mWrite ' '
-		dec CurrentPos_X1
-		mGoto CurrentPos_X1, CurrentPos_Y1
-		mWrite Player1
+	.IF ah && CurrentPos_X1 > 31 
+		.IF CurrentPos_X1 == bl && CurrentPos_Y1 == bh && CurrentPos_X1>32
+			mGoto CurrentPos_X1,CurrentPos_Y1						;消去player1本來的位置
+			mWrite ' '
+			dec CurrentPos_X1
+			mGoto CurrentPos_X1, CurrentPos_Y1
+			mWrite Player1											;player1新位置	
+			mGoto CurrentPos_X2,CurrentPos_Y2						;消去player2本來的位置
+			mWrite ' '
+			dec CurrentPos_X2
+			mGoto CurrentPos_X2, CurrentPos_Y2
+			mWrite Player2
+		.ELSEIF	CurrentPos_X1 != bl || CurrentPos_Y1 != bh
+			mGoto CurrentPos_X1,CurrentPos_Y1						;消去player1本來的位置
+			mWrite ' '
+			dec CurrentPos_X1
+			mGoto CurrentPos_X1, CurrentPos_Y1
+			mWrite Player1											;player1新位置	
+		.ENDIF
+		
 	.ENDIF
 
 	INVOKE GetKeyState, 'D'    ;角色1右鍵
+	mov bh, CurrentPos_Y2
 	mov bl, CurrentPos_X2
 	dec bl
-	.IF ah && CurrentPos_X1 < 89 && CurrentPos_X1 != bl
-		;invoke Sleep, 15
-		mGoto CurrentPos_X1,CurrentPos_Y1    
-		mWrite ' '
-		inc CurrentPos_X1
-		mGoto CurrentPos_X1, CurrentPos_Y1
-		mWrite Player1
+	.IF ah && CurrentPos_X1 < 89 
+		.IF CurrentPos_X1 == bl && CurrentPos_Y1 == bh && CurrentPos_X1<88
+			mGoto CurrentPos_X1,CurrentPos_Y1    
+			mWrite ' '
+			inc CurrentPos_X1
+			mGoto CurrentPos_X1, CurrentPos_Y1
+			mWrite Player1
+			mGoto CurrentPos_X2,CurrentPos_Y2   
+			mWrite ' '
+			inc CurrentPos_X2
+			mGoto CurrentPos_X2, CurrentPos_Y2
+			mWrite Player2
+		.ELSEIF CurrentPos_X1 != bl || CurrentPos_Y1 != bh
+			mGoto CurrentPos_X1,CurrentPos_Y1						;消去player1本來的位置
+			mWrite ' '
+			inc CurrentPos_X1
+			mGoto CurrentPos_X1, CurrentPos_Y1
+			mWrite Player1
+		.ENDIF
 	.ENDIF
 
   INVOKE GetKeyState, VK_LEFT	;角色2左鍵
+	mov bh, CurrentPos_Y1
 	mov bl, CurrentPos_X1
 	inc bl
-	.IF ah && CurrentPos_X2 > 31 && CurrentPos_X2 != bl
-		invoke Sleep, 15
-		mGoto CurrentPos_X2, CurrentPos_Y2       
-		mWrite ' '
-		dec CurrentPos_X2
-		mGoto CurrentPos_X2, CurrentPos_Y2
-		mWrite Player2
+	.IF ah && CurrentPos_X2 > 31
+		.IF CurrentPos_X2 == bl && CurrentPos_Y2 == bh && CurrentPos_X2>32
+			mGoto CurrentPos_X2, CurrentPos_Y2						;消去player2本來的位置
+			mWrite ' '
+			dec CurrentPos_X2
+			mGoto CurrentPos_X2, CurrentPos_Y2
+			mWrite Player2											;player2新位置
+			mGoto CurrentPos_X1, CurrentPos_Y1						;消去player1本來的位置
+			mWrite ' '
+			dec CurrentPos_X1
+			mGoto CurrentPos_X1, CurrentPos_Y1
+			mWrite Player1											;player1新位置
+		.ELSEIF	CurrentPos_X2 != bl || CurrentPos_Y2 != bh
+			mGoto CurrentPos_X2,CurrentPos_Y2						;消去player2本來的位置
+			mWrite ' '
+			dec CurrentPos_X2
+			mGoto CurrentPos_X2, CurrentPos_Y2
+			mWrite Player2											;player2新位置	
+		.ENDIF
+
 	.ENDIF
 
   INVOKE GetKeyState, VK_RIGHT	;角色2右鍵
 	mov bl, CurrentPos_X1
 	dec bl
-	.IF ah && CurrentPos_X2 < 89 && CurrentPos_X2 != bl
-		invoke Sleep, 15
-		mGoto CurrentPos_X2, CurrentPos_Y2      
-		mWrite ' '
-		inc CurrentPos_X2
-		mGoto CurrentPos_X2, CurrentPos_Y2
-		mWrite Player2
+	.IF ah && CurrentPos_X2 < 89 
+		.IF CurrentPos_X2 == bl && CurrentPos_Y2 == bh && CurrentPos_X2<88
+			mGoto CurrentPos_X2, CurrentPos_Y2      
+			mWrite ' '
+			inc CurrentPos_X2
+			mGoto CurrentPos_X2, CurrentPos_Y2
+			mWrite Player2
+			mGoto CurrentPos_X1, CurrentPos_Y1      
+			mWrite ' '
+			inc CurrentPos_X1
+			mGoto CurrentPos_X1, CurrentPos_Y1
+			mWrite Player1
+		.ELSEIF CurrentPos_X2 != bl || CurrentPos_Y2 != bh
+			mGoto CurrentPos_X2, CurrentPos_Y2      
+			mWrite ' '
+			inc CurrentPos_X2
+			mGoto CurrentPos_X2, CurrentPos_Y2
+			mWrite Player2
+		.ENDIF
 	.ENDIF 
 	
 	
