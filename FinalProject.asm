@@ -33,7 +33,6 @@ VK_RIGHT EQU 000000027h  ;右方向鍵
 arr byte 0,0,0,0,0,0,0,0,0,0				;地圖陣列
 arr_y byte 0,3,6,9,12,15,18,21,24,27		;地圖陣列之y座標紀錄
 arr_x byte 0,0,0,0,0,0,0,0,0,0				;地圖陣列之x座標紀錄
-arr_type byte 0,0,0,0,0,0,0,0,0,0			;0:一般地板 1:Sham 2:尖刺 3:滾動
 
 top DWORD 0
 bottom DWORD 9
@@ -71,12 +70,7 @@ Player2 EQU 'B'
 Score2 DWORD 0								;角色2分數
 
 Wall EQU '|'				;牆壁
-Floor EQU 'TTTTTTTTTT'		
-Sham  EQU 'HHHHHHHHHH'		;踩到一秒後掉落
-Spike EQU 'AAAAAAAAAA'		;踩到後死亡
-Roll1 EQU 'TLTLTLTLTL'
-Roll2 EQU 'LTLTLTLTLT'
-
+Floor EQU 'TTTTTTTTTT'
 Empty EQU '          '		
 
 Min_X EQU 30			
@@ -100,10 +94,8 @@ main proc
 		mov eax , 6
         call RandomRange
         mov arr[esi] , al
-		mov eax , 4
-        call RandomRange
-        mov arr_type[esi] , al
 		inc esi
+		
 	loop FloorInitial
 
 	call ShowWall
@@ -151,7 +143,7 @@ ShowRole  PROC
 
 		
 		.IF DropTimer>DropSpeed
-			;call ShowDrop
+			call ShowDrop
 			call ChangeState
 			INVOKE GetTickCount        ; get starting tick count
 			mov    DropStartTime,eax        ; save it
@@ -245,16 +237,11 @@ ShowFloor PROC USES eax
 		L1:
 			mov al,arr[esi+1]
 			mov arr[esi],al
-			mov al,arr_type[esi+1]
-			mov arr_type[esi],al
 			inc esi
 		Loop L1
 		mov eax , 6 
         call RandomRange
 		mov arr[9],al
-		mov eax , 4 
-        call RandomRange
-		mov arr_type[9],al
         
 	.ELSEIF
 		dec FloorCount
@@ -268,15 +255,15 @@ ShowFloor PROC USES eax
 	
 
 	.IF State1 == 1 || State1 == 3		;on the stair
-		mGoto CurrentPos_X1, CurrentPos_Y1
-		mWrite ' '
-		dec CurrentPos_Y1
+		;mGoto CurrentPos_X1, CurrentPos_Y1
+		;mWrite ' '
+		;dec CurrentPos_Y1
 	.ENDIF
 
 	.IF State2 == 1 || State2 == 3
-		mGoto CurrentPos_X2, CurrentPos_Y2
-		mWrite ' '
-		dec CurrentPos_Y2
+		;mGoto CurrentPos_X2, CurrentPos_Y2
+		;mWrite ' '
+		;dec CurrentPos_Y2
 	.ENDIF
 	
 
@@ -292,15 +279,7 @@ ShowFloor PROC USES eax
 
 		.IF FloorCount!=0 || esi !=0
 			mGoto al,CurrentFloor
-			.IF arr_type[esi]==0
-				mWrite Floor
-			.ELSEIF arr_type[esi]==1
-				mWrite Sham
-			.ELSEIF arr_type[esi]==2
-				mWrite Spike
-			.ELSEIF arr_type[esi]==3
-				mWrite Roll1
-			.ENDIF
+			mWrite Floor
 		.ENDIF
 		add CurrentFloor,3
 		inc esi
@@ -355,7 +334,6 @@ ShowScore PROC USES eax
 ;----------------------------------------
 ShowWall PROC	USES eax
 	
-
 	mov al,Min_Y
 	WallLoop:
 		
@@ -383,15 +361,7 @@ ShowWall PROC	USES eax
 		mov ah,CurrentFloor
 		mov arr_y[esi],ah
 		mGoto al,CurrentFloor
-		.IF arr_type[esi]==0
-			mWrite Floor
-		.ELSEIF arr_type[esi]==1
-			mWrite Sham
-		.ELSEIF arr_type[esi]==2
-			mWrite Spike
-		.ELSEIF arr_type[esi]==3
-			mWrite Roll1
-		.ENDIF
+		mWrite Floor
 		add CurrentFloor,3
 		inc esi
 	.IF esi<10
@@ -411,7 +381,6 @@ ShowWall PROC	USES eax
 	mGoTo 93,1
 	mWrite 'player2 score:'
 
-	
 		
 	ret
 ShowWall ENDP
