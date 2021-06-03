@@ -2,9 +2,9 @@ INCLUDE Irvine32.inc
 INCLUDE Macros.inc
 INCLUDELIB user32.lib
 
-GetKeyState PROTO, nVirtkey:DWORD ;§PÂ_«öÁäª¬ªp
+GetKeyState PROTO, nVirtkey:DWORD ;åˆ¤æ–·æŒ‰éµç‹€æ³
 
-mGoTo MACRO indexX:REQ, indexY:REQ		;²¾°Ê´å¼Ğ			
+mGoTo MACRO indexX:REQ, indexY:REQ		;ç§»å‹•æ¸¸æ¨™			
 	PUSH edx
 	MOV dl, indexX
 	MOV dh, indexY
@@ -12,7 +12,7 @@ mGoTo MACRO indexX:REQ, indexY:REQ		;²¾°Ê´å¼Ğ
 	POP edx
 ENDM
 
-mWrite MACRO drawText:REQ			;¹º¥X¹Ï¹³
+mWrite MACRO drawText:REQ			;åŠƒå‡ºåœ–åƒ
 	LOCAL string
 	.data
 		string BYTE drawText, 0
@@ -23,62 +23,64 @@ mWrite MACRO drawText:REQ			;¹º¥X¹Ï¹³
 		POP edx
 ENDM
 
-VK_LEFT EQU 000000025h   ;¥ª¤è¦VÁä
-VK_RIGHT EQU 000000027h  ;¥k¤è¦VÁä
+VK_LEFT EQU 000000025h   ;å·¦æ–¹å‘éµ
+VK_RIGHT EQU 000000027h  ;å³æ–¹å‘éµ
 
 .data		;this is the data area
 
-Remainder byte ?							;¾l¼Æ
-Quotient byte ?								;°Ó
 
-arr byte 0,0,0,0,0,0,0,0,0,0				;¦a¹Ï°}¦C
-arr_y byte 0,3,6,9,12,15,18,21,24,27		;¦a¹Ï°}¦C¤§y®y¼Ğ¬ö¿ı
-arr_x byte 0,0,0,0,0,0,0,0,0,0				;¦a¹Ï°}¦C¤§x®y¼Ğ¬ö¿ı
+
+arr byte 0,0,0,0,0,0,0,0,0,0				;åœ°åœ–é™£åˆ—
+arr_y byte 0,3,6,9,12,15,18,21,24,27		;åœ°åœ–é™£åˆ—ä¹‹yåº§æ¨™ç´€éŒ„
+arr_x byte 0,0,0,0,0,0,0,0,0,0				;åœ°åœ–é™£åˆ—ä¹‹xåº§æ¨™ç´€éŒ„
 
 top DWORD 0
 bottom DWORD 9
 FloorCount byte 2
 CurrentFloor byte 2
 
-DropSpeed EQU 100							;±¼¸¨³t«×
-DropStartTime DWORD ?						;±¼¸¨°_©l®É¶¡
+DropSpeed EQU 200							;æ‰è½é€Ÿåº¦
+DropStartTime DWORD ?						;æ‰è½èµ·å§‹æ™‚é–“
 DropTimer DWORD ?							;Drop Timer
 
-KeySpeed EQU 20								;Áä½L¿é¤J³t«×
-KeyStartTime DWORD ?						;Áä½L¿é¤J°_©l®É¶¡
+KeySpeed EQU 50								;éµç›¤è¼¸å…¥é€Ÿåº¦
+KeyStartTime DWORD ?						;éµç›¤è¼¸å…¥èµ·å§‹æ™‚é–“
 KeyTimer DWORD ?							;Key Timer
 
-FloorSpeed EQU 1000							;¤W¤É³t«×
-FloorStartTime DWORD ?						;¤W¤É°_©l®É¶¡
+FloorSpeed EQU 500							;ä¸Šå‡é€Ÿåº¦
+FloorStartTime DWORD ?						;ä¸Šå‡èµ·å§‹æ™‚é–“
 FloorTimer DWORD ?							;Floor Timer
 
+StateSpeed EQU 10							;playerç‹€æ…‹åˆ·æ–°é€Ÿåº¦
+StateStartTime DWORD ?						;ç‹€æ…‹åˆ·æ–°èµ·å§‹æ™‚é–“
+StateTimer DWORD ?							;State Timer
 
-
-InitialPos_X1 EQU 50						;¨¤¦â1°_©l¦ì¸mX
-InitialPos_Y1 EQU 1							;¨¤¦â1°_©l¦ì¸mY
-CurrentPos_X1 BYTE InitialPos_X1			;¨¤¦â1·í«e¦ì¸mX
-CurrentPos_Y1 BYTE InitialPos_Y1			;¨¤¦â1·í«e¦ì¸mY
+InitialPos_X1 EQU 50						;è§’è‰²1èµ·å§‹ä½ç½®X
+InitialPos_Y1 EQU 1							;è§’è‰²1èµ·å§‹ä½ç½®Y
+CurrentPos_X1 BYTE InitialPos_X1			;è§’è‰²1ç•¶å‰ä½ç½®X
+CurrentPos_Y1 BYTE InitialPos_Y1			;è§’è‰²1ç•¶å‰ä½ç½®Y
 Player1 EQU 'A'
-Score1 DWORD 0								;¨¤¦â1¤À¼Æ
+Score1 DWORD 0								;è§’è‰²1åˆ†æ•¸
 
-InitialPos_X2 EQU 60						;¨¤¦â2°_©l¦ì¸mX
-InitialPos_Y2 EQU 1 						;¨¤¦â2°_©l¦ì¸mY
-CurrentPos_X2 BYTE InitialPos_X2			;¨¤¦â2·í«e¦ì¸mX
-CurrentPos_Y2 BYTE InitialPos_Y2			;¨¤¦â2·í«e¦ì¸mY
+InitialPos_X2 EQU 60						;è§’è‰²2èµ·å§‹ä½ç½®X
+InitialPos_Y2 EQU 1 						;è§’è‰²2èµ·å§‹ä½ç½®Y
+CurrentPos_X2 BYTE InitialPos_X2			;è§’è‰²2ç•¶å‰ä½ç½®X
+CurrentPos_Y2 BYTE InitialPos_Y2			;è§’è‰²2ç•¶å‰ä½ç½®Y
 Player2 EQU 'B'
-Score2 DWORD 0								;¨¤¦â2¤À¼Æ
+Score2 DWORD 0								;è§’è‰²2åˆ†æ•¸
 
-Wall EQU '|'				;Àğ¾À
+Wall EQU '|'				;ç‰†å£
 Floor EQU 'TTTTTTTTTT'
 Empty EQU '          '		
 
 Min_X EQU 30			
-Max_X EQU 91			;¦a¹Ï¼e
+Max_X EQU 91			;åœ°åœ–å¯¬
 Min_Y EQU 0	
-Max_Y EQU 30			;¦a¹Ï°ª
+Max_Y EQU 30			;åœ°åœ–é«˜
 
 flag DWORD 0
-
+State1 BYTE 0          ; 0:ä¸åœ¨æ¨“æ¢¯ä¸Šï¼Œ1:åœ¨æ¨“æ¢¯ä¸Šï¼Œ2:æ­»æ‰
+State2 BYTE 0
 
 .code	;this is the code area
 
@@ -106,7 +108,7 @@ main proc
 main endp
 
 ;----------------------------------------
-;					µe¥X¤Hª«						
+;					ç•«å‡ºäººç‰©						
 ;----------------------------------------
 ShowRole  PROC	
 	
@@ -114,32 +116,42 @@ ShowRole  PROC
     mov DropstartTime,eax       
 	mov KeyStartTime,eax
 	mov FloorStartTime,eax
-
+	mov StateStartTime, eax
 
 	Drop:
+
+		.IF State1==2 && State2==2
+			jnl EndDrop				;è·³å‡ºè¿´åœˆ
+		 .ENDIF
 		
 		call ShowScore
-		;­pºâ±¼¸¨ªºtimer
+		;è¨ˆç®—æ‰è½çš„timer
 		INVOKE GetTickCount        ; get new tick count
 		sub    eax,DropstartTime        ; get elapsed milliseconds
 		mov DropTimer,eax		
-		;­pºâÁä½L¿é¤Jªºtimer
+		;è¨ˆç®—éµç›¤è¼¸å…¥çš„timer
 		INVOKE GetTickCount        ; get new tick count
 		sub eax,KeyStartTime
 		mov KeyTimer,eax
-		;­pºâ¦aªO¿é¤Jªºtimer
+		;è¨ˆç®—åœ°æ¿è¼¸å…¥çš„timer
 		INVOKE GetTickCount        ; get new tick count
 		sub eax,FloorStartTime
 		mov FloorTimer,eax
+		INVOKE GetTickCount	
+		sub eax,StateStartTime
+		mov StateTimer,eax
 
-
-		.IF CurrentPos_Y1 > Max_Y && CurrentPos_Y2 >Max_Y
-			jnl EndDrop				;¸õ¥X°j°é
-		 .ENDIF
+		
 		.IF DropTimer>DropSpeed
 			call ShowDrop
+			call ChangeState
 			INVOKE GetTickCount        ; get starting tick count
 			mov    DropStartTime,eax        ; save it
+		.ENDIF
+		.IF StateTimer>StateSpeed
+			call ChangeState
+			INVOKE GetTickCount        ; get starting tick count
+			mov StateStartTime,eax
 		.ENDIF
 		.IF KeyTimer>KeySpeed
 			call key
@@ -147,18 +159,37 @@ ShowRole  PROC
 			mov KeyStartTime,eax
 		.ENDIF
 		.IF FloorTimer>FloorSpeed
+			.IF State1!=2
+				inc Score1
+			.ENDIF
+			.IF State2!=2
+				inc Score2
+			.ENDIF
 			call ShowFloor
+			call ChangeState
 			INVOKE GetTickCount        ; get starting tick count
 			mov FloorStartTime,eax
 		.ENDIF
 
-		mGoTo CurrentPos_X1,CurrentPos_Y1
-		mWrite Player1
-		mGoTo CurrentPos_X2,CurrentPos_Y2
-		mWrite Player2
 		
 
-		
+		.IF CurrentPos_Y1 <= 0 || CurrentPos_Y1 >= 31  ;player1è¶…å‡ºç¯„åœ
+			mov State1,2					
+		.ENDIF
+
+		.IF CurrentPos_Y2 <= 0 || CurrentPos_Y2 >= 31  ;player2è¶…å‡ºç¯„åœ
+			mov State2,2					
+		.ENDIF
+
+		.IF State1 != 2								;player1æ­»äº¡
+			mGoTo CurrentPos_X1,CurrentPos_Y1
+			mWrite Player1
+		.ENDIF
+
+		.IF State2 != 2								;player2æ­»äº¡
+			mGoTo CurrentPos_X2,CurrentPos_Y2
+			mWrite Player2
+		.ENDIF		
 		
 		jmp Drop
 		
@@ -175,14 +206,14 @@ ShowRole ENDP
 ;----------------------------------------
 ;					Floor						
 ;----------------------------------------
-ShowFloor PROC USES eax
+ShowFloor PROC USES eax 
 	
 	mov esi,0
 	mov eax,0
 	mov al,FloorCount
 	mov CurrentFloor,al
 	
-	EmptyLoop:							;À¿¥h¤W¤@¦¸¼Ó±èªº°j°é
+	EmptyLoop:							;æ“¦å»ä¸Šä¸€æ¬¡æ¨“æ¢¯çš„è¿´åœˆ
 		mov al,arr[esi]
 		mov bl,10
 		mul bl
@@ -199,7 +230,7 @@ ShowFloor PROC USES eax
 	.ENDIF
 	
 
-	.IF FloorCount==0					;³Ì¤W¼hªº¦aªO­n¶W¹L¤ÑªáªO¡A°}¦C»İ­n§ó·s
+	.IF FloorCount==0					;æœ€ä¸Šå±¤çš„åœ°æ¿è¦è¶…éå¤©èŠ±æ¿ï¼Œé™£åˆ—éœ€è¦æ›´æ–°
 		mov FloorCount,2	
 		mov esi,0
 		mov ecx,9
@@ -221,14 +252,27 @@ ShowFloor PROC USES eax
 	mov eax,0
 	mov al,FloorCount
 	mov CurrentFloor,al
-
 	
-	FloorLoop:							;µe¼Ó±èªº°j°é
+
+	.IF State1 == 1 || State1 == 3		;on the stair
+		;mGoto CurrentPos_X1, CurrentPos_Y1
+		;mWrite ' '
+		;dec CurrentPos_Y1
+	.ENDIF
+
+	.IF State2 == 1 || State2 == 3
+		;mGoto CurrentPos_X2, CurrentPos_Y2
+		;mWrite ' '
+		;dec CurrentPos_Y2
+	.ENDIF
+	
+
+
+	FloorLoop:							;ç•«æ¨“æ¢¯çš„è¿´åœˆ
 		mov al,arr[esi]
 		mov bl,10
 		mul bl
 		add al,31
-
 		mov arr_x[esi],al
 		mov ah,CurrentFloor
 		mov arr_y[esi],ah
@@ -249,33 +293,32 @@ ShowFloor PROC USES eax
 ;----------------------------------------
 ;					Drop						
 ;----------------------------------------
-ShowDrop PROC USES eax
-		;À¿°£¤W¤@­Ó¦ì¸m
-		mGoTo CurrentPos_X1,CurrentPos_Y1
-		mWrite ' '	
-		mGoTo CurrentPos_X2,CurrentPos_Y2
-		mWrite ' '	
+ShowDrop PROC USES eax 
+		;æ“¦é™¤ä¸Šä¸€å€‹ä½ç½®
+		.IF State1 != 2
+			mGoTo CurrentPos_X1,CurrentPos_Y1
+			mWrite ' '
+		.ENDIF
 
-		;--------------§PÂ_player1±¼¸¨---------------
-		
-		
-		
+		.IF State2 != 2
+			mGoTo CurrentPos_X2,CurrentPos_Y2
+			mWrite ' '
+		.ENDIF
 
-		
-		
-		;--------------§PÂ_µ²§ô---------------
-
-		inc CurrentPos_Y1
-		inc CurrentPos_Y2
-		
+		.IF State1 == 0
+			inc CurrentPos_Y1
+		.ENDIF
+		.IF State2 == 0
+			inc CurrentPos_Y2
+		.ENDIF		
 		
 		mov eax,0
 		mov flag,eax
-
+		
 		ret
 	ShowDrop EndP
 ;----------------------------------------
-;					µe¥X°O¤ÀªO						
+;					ç•«å‡ºè¨˜åˆ†æ¿						
 ;----------------------------------------
 ShowScore PROC USES eax
 		mGoTo 20,1
@@ -287,7 +330,7 @@ ShowScore PROC USES eax
 		ret
 	ShowScore EndP
 ;----------------------------------------
-;					µe¥XÀğ¾À						
+;					ç•«å‡ºç‰†å£						
 ;----------------------------------------
 ShowWall PROC	USES eax
 	
@@ -295,7 +338,7 @@ ShowWall PROC	USES eax
 	WallLoop:
 		
 		cmp al,Max_Y		;eax < Max_Y?
-		jnl EndWall				;¸õ¥X°j°é
+		jnl EndWall				;è·³å‡ºè¿´åœˆ
 
 		mGoTo Min_X,al
 		mWrite Wall
@@ -342,7 +385,7 @@ ShowWall PROC	USES eax
 	ret
 ShowWall ENDP
 ;----------------------------------------
-;					µ²§ôµe­±						
+;					çµæŸç•«é¢						
 ;----------------------------------------
 ShowEnd PROC	USES eax
 	
@@ -361,114 +404,238 @@ ShowEnd PROC	USES eax
 ShowEnd ENDP
 
 ;----------------------------------------
-;					¿é¤J
+;					è¼¸å…¥
 ;----------------------------------------
 key proc
 	mov ah,0
 	
-	INVOKE GetKeyState, 'A'   ;¨¤¦â1¥ªÁä
+	INVOKE GetKeyState, 'A'   ;è§’è‰²1å·¦éµ
 	mov bh, CurrentPos_Y2
 	mov bl, CurrentPos_X2
 	inc bl
-	.IF ah && CurrentPos_X1 > 31 
+	.IF ah && CurrentPos_X1 > 31 && State1 != 2
+		
 		.IF CurrentPos_X1 == bl && CurrentPos_Y1 == bh && CurrentPos_X1>32
-			mGoto CurrentPos_X1,CurrentPos_Y1						;®ø¥hplayer1¥»¨Óªº¦ì¸m
+			mGoto CurrentPos_X1,CurrentPos_Y1						;æ¶ˆå»player1æœ¬ä¾†çš„ä½ç½®
 			mWrite ' '
 			dec CurrentPos_X1
-			mGoto CurrentPos_X1, CurrentPos_Y1
-			mWrite Player1											;player1·s¦ì¸m	
-			mGoto CurrentPos_X2,CurrentPos_Y2						;®ø¥hplayer2¥»¨Óªº¦ì¸m
+			mGoto CurrentPos_X2,CurrentPos_Y2						;æ¶ˆå»player2æœ¬ä¾†çš„ä½ç½®
 			mWrite ' '
 			dec CurrentPos_X2
-			mGoto CurrentPos_X2, CurrentPos_Y2
-			mWrite Player2
+			
 		.ELSEIF	CurrentPos_X1 != bl || CurrentPos_Y1 != bh
-			mGoto CurrentPos_X1,CurrentPos_Y1						;®ø¥hplayer1¥»¨Óªº¦ì¸m
+			
+			;-----------------åˆ¤æ–·player1å·¦é‚Šæœ‰æ²’æœ‰æ¨“æ¢¯----------------------;
+			mov ecx,10
+			mov ah, CurrentPos_Y1
+			mov al, CurrentPos_X1
+			dec al
+			LeftLoop1:
+				.IF ah == arr_y[ecx-1]
+					mov ah,arr_x[ecx-1]
+					add ah,9
+					.IF al==ah
+						jmp Left1
+					.ENDIF
+				.ENDIF
+			loop LeftLoop1
+
+			mGoto CurrentPos_X1,CurrentPos_Y1						;æ¶ˆå»player1æœ¬ä¾†çš„ä½ç½®
 			mWrite ' '
 			dec CurrentPos_X1
-			mGoto CurrentPos_X1, CurrentPos_Y1
-			mWrite Player1											;player1·s¦ì¸m	
+				
+			Left1:
+		
+
 		.ENDIF
 		
-	.ENDIF
+		
 
-	INVOKE GetKeyState, 'D'    ;¨¤¦â1¥kÁä
+	.ENDIF
+	
+
+	INVOKE GetKeyState, 'D'    ;è§’è‰²1å³éµ
 	mov bh, CurrentPos_Y2
 	mov bl, CurrentPos_X2
 	dec bl
-	.IF ah && CurrentPos_X1 < 90 
+	.IF ah && CurrentPos_X1 < 90 && State1 != 2
 		.IF CurrentPos_X1 == bl && CurrentPos_Y1 == bh && CurrentPos_X1<89
 			mGoto CurrentPos_X1,CurrentPos_Y1    
 			mWrite ' '
 			inc CurrentPos_X1
-			mGoto CurrentPos_X1, CurrentPos_Y1
-			mWrite Player1
 			mGoto CurrentPos_X2,CurrentPos_Y2   
 			mWrite ' '
 			inc CurrentPos_X2
-			mGoto CurrentPos_X2, CurrentPos_Y2
-			mWrite Player2
 		.ELSEIF CurrentPos_X1 != bl || CurrentPos_Y1 != bh
-			mGoto CurrentPos_X1,CurrentPos_Y1						;®ø¥hplayer1¥»¨Óªº¦ì¸m
+			;-----------------åˆ¤æ–·player1å³é‚Šæœ‰æ²’æœ‰æ¨“æ¢¯----------------------;
+			mov ecx,10
+			mov ah, CurrentPos_Y1
+			mov al, CurrentPos_X1
+			inc al
+			RightLoop1:
+				.IF ah == arr_y[ecx-1]
+					mov ah,arr_x[ecx-1]
+					.IF al==ah
+						jmp Right1
+					.ENDIF
+				.ENDIF
+			loop RightLoop1
+			mGoto CurrentPos_X1,CurrentPos_Y1						;æ¶ˆå»player1æœ¬ä¾†çš„ä½ç½®
 			mWrite ' '
 			inc CurrentPos_X1
-			mGoto CurrentPos_X1, CurrentPos_Y1
-			mWrite Player1
+				
+			Right1:
+			
+
 		.ENDIF
 	.ENDIF
 
-  INVOKE GetKeyState, VK_LEFT	;¨¤¦â2¥ªÁä
+  INVOKE GetKeyState, VK_LEFT	;è§’è‰²2å·¦éµ
 	mov bh, CurrentPos_Y1
 	mov bl, CurrentPos_X1
 	inc bl
-	.IF ah && CurrentPos_X2 > 31
+	.IF ah && CurrentPos_X2 > 31 && State2 != 2
 		.IF CurrentPos_X2 == bl && CurrentPos_Y2 == bh && CurrentPos_X2>32
-			mGoto CurrentPos_X2, CurrentPos_Y2						;®ø¥hplayer2¥»¨Óªº¦ì¸m
+			mGoto CurrentPos_X2, CurrentPos_Y2						;æ¶ˆå»player2æœ¬ä¾†çš„ä½ç½®
 			mWrite ' '
 			dec CurrentPos_X2
-			mGoto CurrentPos_X2, CurrentPos_Y2
-			mWrite Player2											;player2·s¦ì¸m
-			mGoto CurrentPos_X1, CurrentPos_Y1						;®ø¥hplayer1¥»¨Óªº¦ì¸m
+														
+			mGoto CurrentPos_X1, CurrentPos_Y1						;æ¶ˆå»player1æœ¬ä¾†çš„ä½ç½®
 			mWrite ' '
 			dec CurrentPos_X1
-			mGoto CurrentPos_X1, CurrentPos_Y1
-			mWrite Player1											;player1·s¦ì¸m
+														
 		.ELSEIF	CurrentPos_X2 != bl || CurrentPos_Y2 != bh
-			mGoto CurrentPos_X2,CurrentPos_Y2						;®ø¥hplayer2¥»¨Óªº¦ì¸m
+
+			;-----------------åˆ¤æ–·player2å·¦é‚Šæœ‰æ²’æœ‰æ¨“æ¢¯----------------------;
+			mov ecx,10
+			mov ah, CurrentPos_Y2
+			mov al, CurrentPos_X2
+			dec al
+			LeftLoop2:
+				.IF ah == arr_y[ecx-1]
+					mov ah,arr_x[ecx-1]
+					add ah,9
+					.IF al==ah
+						jmp Left2
+					.ENDIF
+				.ENDIF
+			loop LeftLoop2
+
+			mGoto CurrentPos_X2,CurrentPos_Y2						;æ¶ˆå»player1æœ¬ä¾†çš„ä½ç½®
 			mWrite ' '
 			dec CurrentPos_X2
-			mGoto CurrentPos_X2, CurrentPos_Y2
-			mWrite Player2											;player2·s¦ì¸m	
+				
+			Left2:
 		.ENDIF
 
 	.ENDIF
 
-  INVOKE GetKeyState, VK_RIGHT	;¨¤¦â2¥kÁä
+  INVOKE GetKeyState, VK_RIGHT	;è§’è‰²2å³éµ
 	mov bl, CurrentPos_X1
 	dec bl
-	.IF ah && CurrentPos_X2 < 90 
+	.IF ah && CurrentPos_X2 < 90 && State2 != 2
 		.IF CurrentPos_X2 == bl && CurrentPos_Y2 == bh && CurrentPos_X2<89
 			mGoto CurrentPos_X2, CurrentPos_Y2      
 			mWrite ' '
 			inc CurrentPos_X2
-			mGoto CurrentPos_X2, CurrentPos_Y2
-			mWrite Player2
 			mGoto CurrentPos_X1, CurrentPos_Y1      
 			mWrite ' '
 			inc CurrentPos_X1
-			mGoto CurrentPos_X1, CurrentPos_Y1
-			mWrite Player1
 		.ELSEIF CurrentPos_X2 != bl || CurrentPos_Y2 != bh
-			mGoto CurrentPos_X2, CurrentPos_Y2      
+
+			;-----------------åˆ¤æ–·player2å³é‚Šæœ‰æ²’æœ‰æ¨“æ¢¯----------------------;
+			mov ecx,10
+			mov ah, CurrentPos_Y2
+			mov al, CurrentPos_X2
+			inc al
+			RightLoop2:
+				.IF ah == arr_y[ecx-1]
+					mov ah,arr_x[ecx-1]
+					.IF al==ah
+						jmp Right2
+					.ENDIF
+				.ENDIF
+			loop RightLoop2
+			mGoto CurrentPos_X2,CurrentPos_Y2						;æ¶ˆå»player1æœ¬ä¾†çš„ä½ç½®
 			mWrite ' '
 			inc CurrentPos_X2
-			mGoto CurrentPos_X2, CurrentPos_Y2
-			mWrite Player2
+				
+			Right2:
+
 		.ENDIF
 	.ENDIF 
 	
 	
 	ret
 key endp
+
+;---------------------------------------------
+;					ChangeState
+;---------------------------------------------
+ChangeState proc USES eax ecx edx ebx
+	.IF State1 != 2
+			mov State1,0
+			mov dl,State2
+			mov bl, CurrentPos_Y1
+			mov bh, CurrentPos_X1
+			inc bl
+			
+			
+			mov ecx,10
+			CheckState1:
+				.IF bl == arr_y[ecx-1]
+					mov ah,arr_x[ecx-1]
+					mov al,ah
+					add al,9
+					.IF CurrentPos_X1 >= ah && CurrentPos_X1 <= al 
+						mov State1,1
+						sub bl,2
+						.IF CurrentPos_X2 == bh && CurrentPos_Y2 == bl
+							mov State2,3
+							jmp E1
+						.ENDIF
+						mov State2,0
+					.ELSE
+						mov State1,0
+					.ENDIF
+					jmp S2
+				.ELSE
+					mov State1,0
+				.ENDIF
+			loop CheckState1
+		.ENDIF
+S2:
+		
+		.IF State2 != 2
+			mov bl, CurrentPos_Y2
+			mov bh, CurrentPos_X2
+			inc bl
+			
+			mov ecx,10
+			CheckState2:
+				.IF bl == arr_y[ecx-1]
+					mov ah,arr_x[ecx-1]
+					mov al,ah
+					add al,9
+					.IF CurrentPos_X2 >= ah && CurrentPos_X2 <= al 
+						mov State2,1
+						sub bl,2
+						.IF CurrentPos_X1 == bh && CurrentPos_Y1 == bl
+							mov State1,3
+							jmp E1
+						.ENDIF
+					.ELSE
+						mov State2,0
+					.ENDIF
+					jmp E1
+				.ELSE
+					mov State2,0
+				.ENDIF
+			loop CheckState2
+		.ENDIF
+		
+E1:	
+	ret
+ChangeState endp
 
 end main
