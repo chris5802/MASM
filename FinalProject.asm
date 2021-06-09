@@ -34,6 +34,7 @@ arr byte 0,0,0,0,0,0,0,0,0,0				;地圖陣列
 arr_y byte 0,3,6,9,12,15,18,21,24,27		;地圖陣列之y座標紀錄
 arr_x byte 0,0,0,0,0,0,0,0,0,0				;地圖陣列之x座標紀錄
 arr_type byte 0,0,0,0,0,0,0,0,0,0			;0:一般地板 1:Sham 2:尖刺 3:滾動
+lg_type byte 0,0,0,0,0,0,0,0,0,0
 
 top DWORD 0
 bottom DWORD 9
@@ -79,6 +80,8 @@ RollRight_2 EQU '>->->->->-'
 RollLeft_1 EQU '-<-<-<-<-<'
 RollLeft_2 EQU '<-<-<-<-<-'
 RollState Byte 0
+decision Byte 0
+
 Empty EQU '          '		
 
 Min_X EQU 30			
@@ -252,6 +255,8 @@ ShowFloor PROC USES eax
 			mov arr[esi],al
 			mov al,arr_type[esi+1]
 			mov arr_type[esi],al
+			mov al,lg_type[esi+1]
+			mov lg_type[esi],al
 			inc esi
 		Loop L1
 		mov eax , 6 
@@ -260,6 +265,9 @@ ShowFloor PROC USES eax
 		mov eax , 4 
         call RandomRange
 		mov arr_type[9],al
+		mov eax, 2
+		call RandomRange
+		mov lg_type[9],al
         
 	.ELSEIF
 		dec FloorCount
@@ -284,7 +292,7 @@ ShowFloor PROC USES eax
 		dec CurrentPos_Y2
 	.ENDIF
 	
-
+	
 
 	FloorLoop:							;畫樓梯的迴圈
 		mov al,arr[esi]
@@ -295,6 +303,8 @@ ShowFloor PROC USES eax
 		mov ah,CurrentFloor
 		mov arr_y[esi],ah
 
+		
+
 		.IF FloorCount!=0 || esi !=0
 			mGoto al,CurrentFloor
 			.IF arr_type[esi]==0
@@ -303,13 +313,13 @@ ShowFloor PROC USES eax
 				mWrite Sham
 			.ELSEIF arr_type[esi]==2
 				mWrite Spike
-			.ELSEIF arr_type[esi]==3
+			.ELSEIF arr_type[esi]==3 && lg_type[esi]==1
 				.IF RollState==0
 					mWrite RollRight_1
 				.ELSE 
 					mWrite RollRight_2
 				.ENDIF
-			.ELSEIF arr_type[esi]==4
+			.ELSEIF arr_type[esi]==4 && lg_type[esi]==1
 				.IF RollState==0
 					mWrite RollLeft_1
 				.ELSE 
@@ -404,19 +414,22 @@ ShowWall PROC	USES eax
 		mov ah,CurrentFloor
 		mov arr_y[esi],ah
 		mGoto al,CurrentFloor
+
+		
+
 		.IF arr_type[esi]==0
 			mWrite Floor
 		.ELSEIF arr_type[esi]==1
 			mWrite Sham
 		.ELSEIF arr_type[esi]==2
 			mWrite Spike
-		.ELSEIF arr_type[esi]==3
+		.ELSEIF arr_type[esi]==3 && lg_type[esi]==1
 			.IF RollState==0
 				mWrite RollRight_1
 			.ELSE 
 				mWrite RollRight_2
 			.ENDIF
-		.ELSEIF arr_type[esi]==4
+		.ELSEIF arr_type[esi]==4 && lg_type[esi]==1
 			.IF RollState==0
 				mWrite RollLeft_1
 			.ELSE 
