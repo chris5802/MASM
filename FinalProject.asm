@@ -89,7 +89,7 @@ Max_Y EQU 30			;地圖高
 flag DWORD 0
 State1 BYTE 0          ; 0:不在樓梯上，1:在樓梯上，2:死掉，3:跌在其他人身上
 State2 BYTE 0
-Floor_type1 byte ?
+Floor_type1 byte ?		;0:一般地板 1:sham 2:spikes 3:roll
 Floor_type2 byte ?
 
 .code	;this is the code area
@@ -104,7 +104,7 @@ main proc
 		mov eax , 6
         call RandomRange
         mov arr[esi] , al
-		mov eax , 5
+		mov eax , 4
         call RandomRange
         mov arr_type[esi] , al
 		inc esi
@@ -257,7 +257,7 @@ ShowFloor PROC USES eax
 		mov eax , 6 
         call RandomRange
 		mov arr[9],al
-		mov eax , 5 
+		mov eax , 4 
         call RandomRange
 		mov arr_type[9],al
         
@@ -658,7 +658,6 @@ ChangeState proc USES eax ecx edx ebx
 							mov State2,3
 							jmp E1
 						.ENDIF
-						mov State2,0
 					.ELSE
 						mov State1,0
 					.ENDIF
@@ -699,6 +698,44 @@ S2:
 		.ENDIF
 		
 E1:	
+	;-------------更新腳下地板狀態
+	mov Floor_type1,0
+	mov bl, CurrentPos_Y1
+	mov bh, CurrentPos_X1
+	inc bl
+	mov esi, 0
+	L1:
+	.IF bl == arr_y[esi] || esi>9
+		.IF arr_type[esi]==3 || arr_type[esi]==4
+			mov al,arr_type[esi]
+			mov Floor_type1,al
+			jmp EndL1
+		.ENDIF	
+	.ELSE
+		inc esi
+		jmp L1
+	.ENDIF
+	EndL1:
+
+	mov Floor_type2,0
+	mov bl, CurrentPos_Y2
+	mov bh, CurrentPos_X2
+	inc bl
+	mov esi, 0
+	L2:
+	.IF bl == arr_y[esi] || esi>9
+		.IF arr_type[esi]==3 || arr_type[esi]==4
+			mov al,arr_type[esi]
+			mov Floor_type2,al
+			jmp EndL2
+		.ENDIF	
+	.ELSE
+		inc esi
+		jmp L2
+	.ENDIF
+	EndL2:
+
+	 
 	ret
 ChangeState endp
 ;---------------------------------------------
@@ -707,61 +744,26 @@ ChangeState endp
 
 Left_Right proc  
 
- mov Floor_type1,0
- mov bl, CurrentPos_Y1
- mov bh, CurrentPos_X1
- inc bl
- mov esi, 0
- L1:
-	.IF bl == arr_y[esi] || esi>9
-		.IF arr_type[esi]==3 || arr_type[esi]==4
-			mov al,arr_type[esi]
-			mov Floor_type1,al
-		.ENDIF
-	    jmp EndL1
-	.ELSE
-	    inc esi
-		jmp L1
-	.ENDIF
- EndL1:
+ 
 
  .IF State1 == 1 
      .IF Floor_type1 == 3
-	    .IF CurrentPos_X2 <90
+	    .IF CurrentPos_X1 <90
 			inc CurrentPos_X1
 		.ENDIF
 	 .ELSEIF Floor_type1 == 4
-	     .IF CurrentPos_X2 > 31
+	     .IF CurrentPos_X1 > 31
 			dec CurrentPos_X1
 		.ENDIF
 	 .ENDIF
 	 
  .ENDIF
-
- mov Floor_type2,0
- mov bl, CurrentPos_Y2
- mov bh, CurrentPos_X2
- inc bl
- mov esi, 0
- L2:
-	.IF bl == arr_y[esi] || esi>9
-		.IF arr_type[esi]==3 || arr_type[esi]==4
-			mov al,arr_type[esi]
-			mov Floor_type1,al
-		.ENDIF
-	    jmp EndL2
-	.ELSE
-	    inc esi
-		jmp L2
-	.ENDIF
- EndL2:
-
  .IF State2 == 1 
-     .IF Floor_type1 == 3
+     .IF Floor_type2 == 3
 		.IF CurrentPos_X2<90
 			inc CurrentPos_X2
 		.ENDIF
-	 .ELSEIF Floor_type1 == 4
+	 .ELSEIF Floor_type2 == 4
 		.IF CurrentPos_X2>31
 			dec CurrentPos_X2
 		.ENDIF
