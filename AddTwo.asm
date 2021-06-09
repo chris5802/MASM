@@ -1,7 +1,7 @@
 INCLUDE Irvine32.inc
 INCLUDE Macros.inc
 INCLUDELIB user32.lib
-
+;
 GetKeyState PROTO, nVirtkey:DWORD ;§PÂ_«öÁäª¬ªp
 
 mGoTo MACRO indexX:REQ, indexY:REQ		;²¾°Ê´å¼Ð			
