@@ -313,18 +313,20 @@ ShowFloor PROC USES eax
 				mWrite Sham
 			.ELSEIF arr_type[esi]==2
 				mWrite Spike
-			.ELSEIF arr_type[esi]==3 && lg_type[esi]==1
-				.IF RollState==0
-					mWrite RollRight_1
-				.ELSE 
-					mWrite RollRight_2
-				.ENDIF
-			.ELSEIF arr_type[esi]==4 && lg_type[esi]==1
-				.IF RollState==0
-					mWrite RollLeft_1
-				.ELSE 
-					mWrite RollLeft_2
-				.ENDIF
+			.ELSEIF arr_type[esi]==3 
+				.IF lg_type[esi]==1
+			        .IF RollState==0
+				        mWrite RollRight_1
+			        .ELSE 
+				        mWrite RollRight_2
+			        .ENDIF
+		        .ELSEIF lg_type[esi]==0
+			            .IF RollState==0
+				            mWrite RollLeft_1
+			            .ELSE 
+				            mWrite RollLeft_2
+			            .ENDIF
+		         .ENDIF
 			.ENDIF
 		.ENDIF
 		add CurrentFloor,3
@@ -423,18 +425,20 @@ ShowWall PROC	USES eax
 			mWrite Sham
 		.ELSEIF arr_type[esi]==2
 			mWrite Spike
-		.ELSEIF arr_type[esi]==3 && lg_type[esi]==1
-			.IF RollState==0
-				mWrite RollRight_1
-			.ELSE 
-				mWrite RollRight_2
-			.ENDIF
-		.ELSEIF arr_type[esi]==4 && lg_type[esi]==1
-			.IF RollState==0
-				mWrite RollLeft_1
-			.ELSE 
-				mWrite RollLeft_2
-			.ENDIF
+		.ELSEIF arr_type[esi]==3 
+		    .IF lg_type[esi]==1
+			    .IF RollState==0
+				    mWrite RollRight_1
+			    .ELSE 
+				    mWrite RollRight_2
+			    .ENDIF
+		    .ELSEIF  lg_type[esi]==0
+			    .IF RollState==0
+				    mWrite RollLeft_1
+			    .ELSE 
+				    mWrite RollLeft_2
+			    .ENDIF
+		    .ENDIF
 		.ENDIF
 		add CurrentFloor,3
 		inc esi
@@ -719,10 +723,14 @@ E1:
 	mov esi, 0
 	L1:
 	.IF bl == arr_y[esi] || esi>9
-		.IF arr_type[esi]==3 || arr_type[esi]==4
-			mov al,arr_type[esi]
-			mov Floor_type1,al
-			jmp EndL1
+		.IF arr_type[esi]==3 
+		    .IF lg_type[esi] == 1
+			    mov Floor_type1,3
+				jmp EndL1
+			.ELSEIF lg_type[esi]==0
+			    mov Floor_type1,4
+			    jmp EndL1
+			.ENDIF
 		.ENDIF	
 	.ELSE
 		inc esi
@@ -737,10 +745,14 @@ E1:
 	mov esi, 0
 	L2:
 	.IF bl == arr_y[esi] || esi>9
-		.IF arr_type[esi]==3 || arr_type[esi]==4
-			mov al,arr_type[esi]
-			mov Floor_type2,al
-			jmp EndL2
+		.IF arr_type[esi]==3 
+		    .IF lg_type[esi]==1
+			    mov Floor_type2,3
+				jmp EndL2
+			.ELSEIF lg_type[esi]==0
+			    mov Floor_type2, 4
+			    jmp EndL2
+			.ENDIF
 		.ENDIF	
 	.ELSE
 		inc esi
