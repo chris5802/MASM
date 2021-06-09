@@ -311,6 +311,17 @@ ShowFloor PROC USES eax
 				mWrite Floor
 			.ELSEIF arr_type[esi]==1
 				mWrite Sham
+				dec CurrentFloor	
+				mov al,CurrentFloor
+			.IF CurrentPos_Y1==al&&State1==1
+				mov arr_type[esi],4  ;下次不印東西
+
+				.ENDIF
+				.IF CurrentPos_Y2==al&&State2==1
+				mov arr_type[esi],4  ;下次不印東西
+
+				.ENDIF
+				inc CurrentFloor
 			.ELSEIF arr_type[esi]==2
 				mWrite Spike
 			.ELSEIF arr_type[esi]==3 
@@ -668,7 +679,7 @@ ChangeState proc USES eax ecx edx ebx
 					mov ah,arr_x[ecx-1]
 					mov al,ah
 					add al,9
-					.IF CurrentPos_X1 >= ah && CurrentPos_X1 <= al 
+					.IF CurrentPos_X1 >= ah && CurrentPos_X1 <= al && arr_type[ecx-1]!=4 
 						mov State1,1
 						sub bl,2
 						.IF CurrentPos_X2 == bh && CurrentPos_Y2 == bl
@@ -697,7 +708,7 @@ S2:
 					mov ah,arr_x[ecx-1]
 					mov al,ah
 					add al,9
-					.IF CurrentPos_X2 >= ah && CurrentPos_X2 <= al 
+					.IF CurrentPos_X2 >= ah && CurrentPos_X2 <= al && arr_type[ecx-1]!=4 
 						mov State2,1
 						sub bl,2
 						.IF CurrentPos_X1 == bh && CurrentPos_Y1 == bl
