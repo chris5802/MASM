@@ -487,7 +487,7 @@ ShowEnd PROC	USES eax
 	.IF score1>eax
 		mWrite 'player1 WIN'
 	.ELSEIF	score1<eax
-		mWrite 'player1 WIN'
+		mWrite 'player2 WIN'
 	.ELSEIF
 		mWrite 'TIE'
 	.ENDIF
@@ -682,7 +682,9 @@ ChangeState proc USES eax ecx edx ebx
 					.IF CurrentPos_X1 >= ah && CurrentPos_X1 <= al && arr_type[ecx-1]!=4 
 						mov State1,1
 						sub bl,2
-						.IF CurrentPos_X2 == bh && CurrentPos_Y2 == bl
+						.IF arr_type[ecx-1]==2
+						    mov State1,2
+						.ELSEIF CurrentPos_X2 == bh && CurrentPos_Y2 == bl
 							mov State2,3
 							jmp E1
 						.ENDIF
@@ -711,7 +713,9 @@ S2:
 					.IF CurrentPos_X2 >= ah && CurrentPos_X2 <= al && arr_type[ecx-1]!=4 
 						mov State2,1
 						sub bl,2
-						.IF CurrentPos_X1 == bh && CurrentPos_Y1 == bl
+						.IF arr_type[ecx-1]==2
+						    mov State2,2
+						.ELSEIF CurrentPos_X1 == bh && CurrentPos_Y1 == bl
 							mov State1,3
 							jmp E1
 						.ENDIF
