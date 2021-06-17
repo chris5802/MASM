@@ -305,39 +305,41 @@ ShowFloor PROC USES eax
 
 		
 
-		.IF FloorCount!=0 || esi !=0
-			mGoto al,CurrentFloor
-			.IF arr_type[esi]==0
-				mWrite Floor
-			.ELSEIF arr_type[esi]==1
-				mWrite Sham
-				dec CurrentFloor	
-				mov al,CurrentFloor
+	.IF FloorCount!=0 || esi !=0
+		mGoto al,CurrentFloor
+		.IF arr_type[esi]==0
+			mWrite Floor
+		.ELSEIF arr_type[esi]==1
+			mWrite Sham
+			dec CurrentFloor	
+			mov al,CurrentFloor
 			.IF CurrentPos_Y1==al&&State1==1
 				mov arr_type[esi],4  ;下次不印東西
-
-				.ENDIF
-				.IF CurrentPos_Y2==al&&State2==1
+				mGoto arr_x[esi],arr_y[esi]
+				mWrite empty
+			.ENDIF
+			.IF CurrentPos_Y2==al&&State2==1
 				mov arr_type[esi],4  ;下次不印東西
-
-				.ENDIF
-				inc CurrentFloor
-			.ELSEIF arr_type[esi]==2
-				mWrite Spike
-			.ELSEIF arr_type[esi]==3 
-				.IF lg_type[esi]==1
-			        .IF RollState==0
-				        mWrite RollRight_1
-			        .ELSE 
-				        mWrite RollRight_2
+				mGoto arr_x[esi],arr_y[esi]
+				mWrite empty
+			.ENDIF
+			inc CurrentFloor
+		.ELSEIF arr_type[esi]==2
+			mWrite Spike
+		.ELSEIF arr_type[esi]==3 
+			.IF lg_type[esi]==1
+				 .IF RollState==0
+					mWrite RollRight_1
+			     .ELSE 
+				    mWrite RollRight_2
+			     .ENDIF
+			 .ELSEIF lg_type[esi]==0
+			     .IF RollState==0
+				    mWrite RollLeft_1
+			    .ELSE 
+				    mWrite RollLeft_2
 			        .ENDIF
-		        .ELSEIF lg_type[esi]==0
-			            .IF RollState==0
-				            mWrite RollLeft_1
-			            .ELSE 
-				            mWrite RollLeft_2
-			            .ENDIF
-		         .ENDIF
+		        .ENDIF
 			.ENDIF
 		.ENDIF
 		add CurrentFloor,3
