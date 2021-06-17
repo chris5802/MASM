@@ -98,16 +98,16 @@ Floor_type2 byte ?
 
 SND_ALIAS    DWORD 00010000h
 SND_RESOURCE DWORD 00040005h
-SND_FILENAME DWORD 00020001h
+SND_FILENAME DWORD 00020001h    ;同步: 20001h, 不同步: 20000h
 
-file BYTE "C:\\Users\\wabby\\Desktop\\assembly code\\test\\c.wav", 0
-
+FILE_GAME BYTE "C:\\Users\\wabby\\Desktop\\f4.wav",0 ;音樂檔名 
+FILE BYTE "c.wav",0 
 
 .code	;this is the code area
 
 
 main proc
-	INVOKE PlaySound, OFFSET file, NULL, SND_FILENAME
+	INVOKE PlaySound, OFFSET FILE_GAME, NULL, SND_FILENAME   ;play song
 	mov esi,0
 	mov ecx,10
 	call Randomize
@@ -125,8 +125,8 @@ main proc
 	call ShowRole
 
 	
-
-		
+	
+	
 	Invoke ExitProcess,0	
 main endp
 
@@ -219,7 +219,7 @@ ShowRole  PROC
 		
 
 	EndDrop:	
-	
+	INVOKE PlaySound, NULL, NULL, 0    ;關閉前一個音樂
 	call ShowEnd
 	Invoke sleep,5000
 
@@ -490,8 +490,11 @@ ShowWall ENDP
 ;					結束畫面						
 ;----------------------------------------
 ShowEnd PROC	USES eax
+
+	
 	
 	call Clrscr
+	INVOKE PlaySound, OFFSET FILE, NULL, SND_FILENAME  ;播放結束音樂
 	mov eax,score2
 	mGoTo 55,15
 	.IF score1>eax
