@@ -1,8 +1,9 @@
 INCLUDE Irvine32.inc
 INCLUDE Macros.inc
 INCLUDELIB user32.lib
-
+INCLUDELIB Winmm.lib
 GetKeyState PROTO, nVirtkey:DWORD ;判斷按鍵狀況
+PlaySound PROTO, pszSound:PTR BYTE, hmod : DWORD, fdwSound : DWORD
 
 mGoTo MACRO indexX:REQ, indexY:REQ		;移動游標			
 	PUSH edx
@@ -95,11 +96,18 @@ State2 BYTE 0
 Floor_type1 byte ?		;0:一般地板 1:sham 2:spikes 3:roll
 Floor_type2 byte ?
 
+SND_ALIAS    DWORD 00010000h
+SND_RESOURCE DWORD 00040005h
+SND_FILENAME DWORD 00020001h
+
+file BYTE "C:\\Users\\wabby\\Desktop\\assembly code\\test\\c.wav", 0
+
+
 .code	;this is the code area
 
 
 main proc
-	
+	INVOKE PlaySound, OFFSET file, NULL, SND_FILENAME
 	mov esi,0
 	mov ecx,10
 	call Randomize
