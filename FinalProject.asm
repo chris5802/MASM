@@ -226,9 +226,17 @@ main proc
 			mov eax , 6
 			call RandomRange
 			mov arr[esi] , al
-			mov eax , 4
+			mov eax , 10
 			call RandomRange
-			mov arr_type[esi] , al
+			.IF al<4
+				mov arr_type[esi],0
+			.ELSEIF al>=4 && al<6
+				mov arr_type[esi],1
+			.ELSEIF al>=6 && al<8
+				mov arr_type[esi],2
+			.ELSE
+				mov arr_type[esi],3
+			.ENDIF
 			inc esi
 		loop FloorInitial
 
@@ -395,9 +403,17 @@ ShowFloor PROC USES eax
 		mov eax , 6 
         call RandomRange
 		mov arr[9],al
-		mov eax , 4 
-        call RandomRange
-		mov arr_type[9],al
+		mov eax , 10
+		call RandomRange
+		.IF al<4
+			mov arr_type[9],0
+		.ELSEIF al>=4 && al<6
+			mov arr_type[9],1
+		.ELSEIF al>=6 && al<8
+			mov arr_type[9],2
+		.ELSE
+			mov arr_type[9],3
+		.ENDIF
 		mov eax, 2
 		call RandomRange
 		mov lg_type[9],al
