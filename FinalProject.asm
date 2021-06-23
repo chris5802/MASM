@@ -2,6 +2,8 @@ INCLUDE Irvine32.inc
 INCLUDE Macros.inc
 INCLUDELIB user32.lib
 INCLUDELIB Winmm.lib
+
+
 GetKeyState PROTO, nVirtkey:DWORD ;判斷按鍵狀況
 PlaySound PROTO, pszSound:PTR BYTE, hmod : DWORD, fdwSound : DWORD
 
@@ -23,7 +25,6 @@ mWrite MACRO drawText:REQ			;劃出圖像
 		call WriteString
 		POP edx
 ENDM
-
 VK_LEFT EQU 000000025h   ;左方向鍵
 VK_RIGHT EQU 000000027h  ;右方向鍵
 
@@ -46,7 +47,7 @@ DropSpeed EQU 200							;掉落速度
 DropStartTime DWORD ?						;掉落起始時間
 DropTimer DWORD ?							;Drop Timer
 
-KeySpeed EQU 50								;鍵盤輸入速度
+KeySpeed EQU 40								;鍵盤輸入速度
 KeyStartTime DWORD ?						;鍵盤輸入起始時間
 KeyTimer DWORD ?							;Key Timer
 
@@ -62,18 +63,18 @@ InitialPos_X1 EQU 50						;角色1起始位置X
 InitialPos_Y1 EQU 1							;角色1起始位置Y
 CurrentPos_X1 BYTE InitialPos_X1			;角色1當前位置X
 CurrentPos_Y1 BYTE InitialPos_Y1			;角色1當前位置Y
-Player1 EQU 'A'
+Player1 EQU 'W'
 Score1 DWORD 0								;角色1分數
 
 InitialPos_X2 EQU 60						;角色2起始位置X
 InitialPos_Y2 EQU 1 						;角色2起始位置Y
 CurrentPos_X2 BYTE InitialPos_X2			;角色2當前位置X
 CurrentPos_Y2 BYTE InitialPos_Y2			;角色2當前位置Y
-Player2 EQU 'B'
+Player2 EQU 'U'
 Score2 DWORD 0								;角色2分數
 
-Wall EQU '|'				;牆壁
-Floor EQU 'TTTTTTTTTT'		
+Wall EQU ' '				;牆壁
+Floor EQU 'TTTTTTTTTT'		;■■■■
 Sham  EQU 'HHHHHHHHHH'		;踩到一秒後掉落
 Spike EQU 'AAAAAAAAAA'		;踩到後死亡
 RollRight_1 EQU '->->->->->'
@@ -101,8 +102,8 @@ SND_RESOURCE DWORD 00040005h
 SND_FILENAME DWORD 00020001h    ;同步: 20001h, 不同步: 20000h
 
 
-FILE_GAME BYTE "C:\\Users\\wabby\\Desktop\\f4.wav",0 ;音樂檔名 
-FILE BYTE "c.wav",0 
+FILE_GAME BYTE "3.wav",0 ;音樂檔名 
+FILE BYTE "12.wav",0 
 
 Win_P1 EQU '00000000 '
 Win_P2 EQU '00     00'
@@ -330,11 +331,11 @@ ShowRole  PROC
 
 		
 
-		.IF CurrentPos_Y1 <= 0 || CurrentPos_Y1 >= 31  ;player1超出範圍
+		.IF CurrentPos_Y1 <= 0 || CurrentPos_Y1 >= 30  ;player1超出範圍
 			mov State1,2					
 		.ENDIF
 
-		.IF CurrentPos_Y2 <= 0 || CurrentPos_Y2 >= 31  ;player2超出範圍
+		.IF CurrentPos_Y2 <= 0 || CurrentPos_Y2 >= 30  ;player2超出範圍
 			mov State2,2					
 		.ENDIF
 
@@ -378,7 +379,7 @@ ShowFloor PROC USES eax
 		.IF FloorCount!=0 || esi !=0
 			mGoto al,CurrentFloor
 			mWrite Empty
-		.ENDIF		
+		.ENDIF
 		add CurrentFloor,3
 		inc esi
 		
@@ -556,8 +557,12 @@ ShowWall PROC	USES eax
 		
 		cmp al,Max_Y		;eax < Max_Y?
 		jnl EndWall				;跳出迴圈
-
+		
 		mGoTo Min_X,al
+		push eax
+		mov eax,15*16
+		call setTextColor
+		pop eax
 		mWrite Wall
 		mGoTo Max_X,al
 		mWrite Wall
@@ -565,10 +570,13 @@ ShowWall PROC	USES eax
 		jmp WallLoop
 	
 	EndWall:
-
-	mov esi,0
-	mov al,FloorCount
-	mov CurrentFloor,al
+		push eax
+		mov eax,15
+		call setTextColor
+		pop eax
+		mov esi,0
+		mov al,FloorCount
+		mov CurrentFloor,al
 	FloorLoop:
 		mov al,arr[esi]
 		mov bl,10
@@ -578,11 +586,10 @@ ShowWall PROC	USES eax
 		mov ah,CurrentFloor
 		mov arr_y[esi],ah
 		mGoto al,CurrentFloor
-
 		
-
 		.IF arr_type[esi]==0
-			mWrite Floor
+			
+			mWrite Floor	
 		.ELSEIF arr_type[esi]==1
 			mWrite Sham
 		.ELSEIF arr_type[esi]==2
@@ -601,9 +608,15 @@ ShowWall PROC	USES eax
 				    mWrite RollLeft_2
 			    .ENDIF
 		    .ENDIF
+			
 		.ENDIF
 		add CurrentFloor,3
 		inc esi
+		push eax
+		mov eax,15
+		call setTextColor
+		pop eax
+
 	.IF esi<10
 		JMP FloorLoop
 	.ENDIF
@@ -612,7 +625,8 @@ ShowWall PROC	USES eax
 	mov al,31
 	SpikeLoop:
 		mGoTo al,0
-		mWrite'V'
+		
+		mWrite 'V'
 		inc al
 	Loop SpikeLoop
 
