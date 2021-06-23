@@ -103,26 +103,128 @@ SND_FILENAME DWORD 00020001h    ;同步: 20001h, 不同步: 20000h
 FILE_GAME BYTE "C:\\Users\\wabby\\Desktop\\f4.wav",0 ;音樂檔名 
 FILE BYTE "c.wav",0 
 
+Win_P1 EQU '00000000 '
+Win_P2 EQU '00     00'
+Win_P3 EQU '00     00'
+Win_P4 EQU '00000000 '
+Win_P5 EQU '00       '
+Win_P6 EQU '00       '
+Win_P7 EQU '00       '
+
+Win_L1 EQU '00        '
+Win_L2 EQU '00        '
+Win_L3 EQU '00        '
+Win_L4 EQU '00	      '
+Win_L5 EQU '00	      '
+Win_L6 EQU '00        '
+Win_L7 EQU '0000000000'
+
+Win_A1 EQU '      00' 
+Win_A2 EQU '     0000'
+Win_A3 EQU '    00  00'
+Win_A4 EQU '   00    00'
+Win_A5 EQU '  0000000000'
+Win_A6 EQU ' 00        00'
+Win_A7 EQU '00          00'
+
+Win_Y1 EQU '00      00'
+Win_Y2 EQU ' 00    00'
+Win_Y3 EQU '  00  00'
+Win_Y4 EQU '   0000'
+Win_Y5 EQU '    00'
+Win_Y6 EQU '    00'
+Win_Y7 EQU '    00'
+
+Win_E1 EQU '000000000'
+Win_E2 EQU '00        '
+Win_E3 EQU '00        '
+Win_E4 EQU '000000000'
+Win_E5 EQU '00        '
+Win_E6 EQU '00        '
+Win_E7 EQU '000000000'
+
+Win_R1 EQU '00000000'
+Win_R2 EQU '00     00'
+Win_R3 EQU '00     00'
+Win_R4 EQU '00000000'
+Win_R5 EQU '00   00 '
+Win_R6 EQU '00    00'
+Win_R7 EQU '00     00'
+
+Win_11 EQU '  0000    '
+Win_12 EQU ' 00 00    '
+Win_13 EQU '00  00    '
+Win_14 EQU '    00    '
+Win_15 EQU '    00     '
+Win_16 EQU '    00    '
+Win_17 EQU '0000000000'
+
+Win_21 EQU '0000000000'
+Win_22 EQU '        00'
+Win_23 EQU '        00'
+Win_24 EQU '0000000000'
+Win_25 EQU '00        '
+Win_26 EQU '00        '
+Win_27 EQU '0000000000'
+
+Win_W1 EQU '00      00      00'
+Win_W2 EQU '00      00      00'
+Win_W3 EQU '00     0000     00'
+Win_W4 EQU '00    00  00    00' 
+Win_W5 EQU ' 00  00    00  00'
+Win_W6 EQU '  0000      0000'
+Win_W7 EQU '   00        00' 
+
+Win_I1 EQU ' 00000000'
+Win_I2 EQU '    00   '
+Win_I3 EQU '    00   '
+Win_I4 EQU '    00   '
+Win_I5 EQU '    00   '
+Win_I6 EQU '    00   '
+Win_I7 EQU '0000000000'
+
+Win_N1 EQU '000     00'
+Win_N2 EQU '0000    00'
+Win_N3 EQU '00 00   00'
+Win_N4 EQU '00  00  00'
+Win_N5 EQU '00   00 00'
+Win_N6 EQU '00    0000'
+Win_N7 EQU '00     000'
+
+Win_T1 EQU '0000000000'
+Win_T2 EQU '    00    '
+Win_T3 EQU '    00    '
+Win_T4 EQU '    00    '
+Win_T5 EQU '    00    '
+Win_T6 EQU '    00    '
+Win_T7 EQU '    00    '
+
 .code	;this is the code area
 
 
 main proc
-	INVOKE PlaySound, OFFSET FILE_GAME, NULL, SND_FILENAME   ;play song
-	mov esi,0
-	mov ecx,10
-	call Randomize
-	FloorInitial:
-		mov eax , 6
-        call RandomRange
-        mov arr[esi] , al
-		mov eax , 4
-        call RandomRange
-        mov arr_type[esi] , al
-		inc esi
-	loop FloorInitial
 
-	call ShowWall
-	call ShowRole
+	Again:
+		INVOKE PlaySound, OFFSET FILE_GAME, NULL, SND_FILENAME   ;play song
+		mov esi,0
+		mov ecx,10
+		call Randomize
+		FloorInitial:
+			mov eax , 6
+			call RandomRange
+			mov arr[esi] , al
+			mov eax , 4
+			call RandomRange
+			mov arr_type[esi] , al
+			inc esi
+		loop FloorInitial
+
+		call ShowWall
+		call ShowRole
+
+
+	EndAgain:
+		
 
 	
 	
@@ -496,13 +598,565 @@ ShowEnd PROC	USES eax
 	call Clrscr
 	INVOKE PlaySound, OFFSET FILE, NULL, SND_FILENAME  ;播放結束音樂
 	mov eax,score2
-	mGoTo 55,15
+	
+	
+	mov bh,15
+	mov bl,7
 	.IF score1>eax
-		mWrite 'player1 WIN'
+
+		mGoTo bh,bl
+		mWrite Win_P1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_P2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_P3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_P4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_P5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_P6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_P7
+		inc bl
+
+		add bh,10
+		mov bl,7
+		mGoTo bh,bl
+		mWrite Win_L1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L7
+		inc bl
+
+		add bh,11
+		mov bl,7
+		mGoTo bh,bl
+		mWrite Win_A1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_A2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_A3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_A4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_A5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_A6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_A7
+		inc bl
+
+		add bh,14
+		mov bl,7
+		mGoTo bh,bl
+		mWrite Win_Y1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_Y2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_Y3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_Y4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_Y5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_Y6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_Y7
+		inc bl
+
+		add bh,11
+		mov bl,7
+		mGoTo bh,bl
+		mWrite Win_E1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E7
+		inc bl
+
+		add bh,10
+		mov bl,7
+		mGoTo bh,bl
+		mWrite Win_R1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_R2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_R3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_R4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_R5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_R6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_R7
+		inc bl
+
+		add bh,20
+		mov bl,7
+		mGoTo bh,bl
+		mWrite Win_11
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_12
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_13
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_14
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_15
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_16
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_17
+		inc bl
+		
+		mov bh,30
+		mov bl,20
+		mGoTo bh,bl
+		mWrite Win_W1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_W2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_W3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_W4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_W5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_W6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_W7
+		inc bl
+
+		add bh,20
+		mov bl,20
+		mGoTo bh,bl
+		mWrite Win_I1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_I2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_I3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_I4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_I5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_I6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_I7
+		inc bl
+		
+		add bh,11
+		mov bl,20
+		mGoTo bh,bl
+		mWrite Win_N1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_N2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_N3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_N4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_N5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_N6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_N7
+		inc bl
+
+		
+	
 	.ELSEIF	score1<eax
-		mWrite 'player2 WIN'
+		mGoTo bh,bl
+		mWrite Win_P1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_P2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_P3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_P4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_P5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_P6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_P7
+		inc bl
+
+		add bh,10
+		mov bl,7
+		mGoTo bh,bl
+		mWrite Win_L1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L7
+		inc bl
+
+		add bh,11
+		mov bl,7
+		mGoTo bh,bl
+		mWrite Win_A1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_A2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_A3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_A4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_A5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_A6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_A7
+		inc bl
+
+		add bh,14
+		mov bl,7
+		mGoTo bh,bl
+		mWrite Win_Y1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_Y2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_Y3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_Y4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_Y5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_Y6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_Y7
+		inc bl
+
+		add bh,11
+		mov bl,7
+		mGoTo bh,bl
+		mWrite Win_E1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E7
+		inc bl
+
+		add bh,10
+		mov bl,7
+		mGoTo bh,bl
+		mWrite Win_R1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_R2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_R3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_R4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_R5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_R6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_R7
+		inc bl
+
+		add bh,20
+		mov bl,7
+		mGoTo bh,bl
+		mWrite Win_21
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_22
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_23
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_24
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_25
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_26
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_27
+		inc bl
+		
+		mov bh,30
+		mov bl,20
+		mGoTo bh,bl
+		mWrite Win_W1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_W2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_W3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_W4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_W5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_W6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_W7
+		inc bl
+
+		add bh,20
+		mov bl,20
+		mGoTo bh,bl
+		mWrite Win_I1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_I2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_I3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_I4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_I5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_I6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_I7
+		inc bl
+		
+		add bh,11
+		mov bl,20
+		mGoTo bh,bl
+		mWrite Win_N1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_N2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_N3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_N4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_N5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_N6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_N7
+		inc bl
+
 	.ELSEIF
-		mWrite 'TIE'
+		mov bh,40
+		mov bl,12
+		mGoTo bh,bl
+		mWrite Win_T1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_T2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_T3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_T4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_T5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_T6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_T7
+		inc bl
+		
+		add bh,12
+		mov bl,12
+		mGoTo bh,bl
+		mWrite Win_L1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_L7
+		inc bl
+
+		add bh,12
+		mov bl,12
+		mGoTo bh,bl
+		mWrite Win_E1
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E2
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E3
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E4
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E5
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E6
+		inc bl
+		mGoTo bh,bl
+		mWrite Win_E7
+		inc bl
+		
+		
 	.ENDIF
 		
 	ret
