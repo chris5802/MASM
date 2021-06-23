@@ -100,6 +100,7 @@ SND_ALIAS    DWORD 00010000h
 SND_RESOURCE DWORD 00040005h
 SND_FILENAME DWORD 00020001h    ;同步: 20001h, 不同步: 20000h
 
+
 FILE_GAME BYTE "C:\\Users\\wabby\\Desktop\\f4.wav",0 ;音樂檔名 
 FILE BYTE "c.wav",0 
 
@@ -203,9 +204,21 @@ Win_T7 EQU '    00    '
 
 
 main proc
-
 	Again:
 		INVOKE PlaySound, OFFSET FILE_GAME, NULL, SND_FILENAME   ;play song
+		call clrscr
+		mGoto InitialPos_X1,InitialPos_Y1
+		mov CurrentPos_X1,InitialPos_X1
+		mov CurrentPos_Y1,InitialPos_Y1
+		mWrite PLAYER1
+		mGoto InitialPos_X2,InitialPos_Y2
+		mov CurrentPos_X2,InitialPos_X2
+		mov CurrentPos_Y2,InitialPos_Y2
+		mWrite PLAYER2
+		mov State1,0
+		mov State2,0
+		mov Score1,0
+		mov Score2,0
 		mov esi,0
 		mov ecx,10
 		call Randomize
@@ -221,8 +234,15 @@ main proc
 
 		call ShowWall
 		call ShowRole
-
-
+		call clrscr
+		INVOKE PlaySound, NULL, NULL, 0
+		mGoto 50,15
+		mWrite "Play again? yes(1)/no(0) > "
+		mov eax,0
+		call ReadDec
+		cmp al,1
+		je Again
+		jmp EndAgain
 	EndAgain:
 		
 
@@ -231,6 +251,9 @@ main proc
 	
 	Invoke ExitProcess,0	
 main endp
+
+
+
 
 ;----------------------------------------
 ;					畫出人物						
@@ -1158,7 +1181,7 @@ ShowEnd PROC	USES eax
 		
 		
 	.ENDIF
-		
+	
 	ret
 ShowEnd ENDP
 
